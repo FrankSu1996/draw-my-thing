@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Client",
+      "type": "npm",
+      "script": "dev",
+      "path": "client/",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "javascript",
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^VITE .* ready",
+          "endsPattern": "ready in \\d+ ms" // This pattern detects when Vite is ready
+        }
+      }
+    },
+    {
+      "label": "Start Server",
+      "type": "npm",
+      "script": "dev",
+      "path": "server/", // Adjust the path to where your server's package.json is located
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Start Client and Server",
+      "dependsOn": ["Start Client", "Start Server"],
+      "dependsOrder": "parallel" // This ensures both tasks run simultaneously
+    }
+  ]
+}
