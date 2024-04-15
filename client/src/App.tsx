@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { socket } from "./socket";
 import { Button } from "@/components/ui/button";
+import { Canvas } from "@/components/ui/canvas";
+import { ClientToServerEvents } from "../../lib/types";
 
 function App() {
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
@@ -20,9 +22,6 @@ function App() {
     }
 
     socket.on("connect", onConnect);
-    socket.on("receive_message", (data) => {
-      alert(data.message);
-    });
 
     return () => {
       socket.off("connect", onConnect);
@@ -33,6 +32,7 @@ function App() {
   return (
     <>
       <Button onClick={sendMessage}>Test</Button>
+      <Canvas />
     </>
   );
 }
