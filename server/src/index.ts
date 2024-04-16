@@ -19,4 +19,8 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
 
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
+
+  socket.on("hello", () => {
+    console.log("received message: ");
+  });
 });

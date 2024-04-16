@@ -3,13 +3,12 @@ import "./App.css";
 import { socket } from "./socket";
 import { Button } from "@/components/ui/button";
 import { Canvas } from "@/components/ui/canvas";
-import { ClientToServerEvents } from "../../lib/types";
 
 function App() {
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
 
   const sendMessage = () => {
-    socket.emit("send_message", { message: "hello" });
+    socket.emit("hello");
   };
 
   useEffect(() => {
@@ -31,8 +30,7 @@ function App() {
 
   return (
     <>
-      <Button onClick={sendMessage}>Test</Button>
-      <Canvas />
+      <Canvas width={800} height={800} />
     </>
   );
 }

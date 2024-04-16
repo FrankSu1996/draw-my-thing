@@ -19,4 +19,7 @@ const io = new socket_io_1.Server(port, {
 });
 io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}`);
+    socket.on("hello", () => {
+        console.log("received message: " + JSON.stringify(data));
+    });
 });
