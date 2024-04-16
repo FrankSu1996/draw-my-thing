@@ -23,4 +23,7 @@ io.on("connection", (socket) => {
   socket.on("hello", () => {
     console.log("received message: ");
   });
+  socket.on("disconnect", () => {
+    console.log(`User Disconnected: ${socket.id}`);
+  });
 });

@@ -4,32 +4,30 @@ import { socket } from "./socket";
 import { Button } from "@/components/ui/button";
 import { Canvas } from "@/components/ui/canvas";
 import { useDrawCanvas } from "./lib/hooks/useDrawCanvas";
+import { useSocketConnection } from "./lib/hooks/useSocketConnection";
+
+export function ConnectionManager() {
+  function connect() {
+    socket.connect();
+  }
+
+  function disconnect() {
+    socket.disconnect();
+  }
+
+  return (
+    <>
+      <Button onClick={connect}>Connect</Button>
+      <Button onClick={disconnect}>Disconnect</Button>
+    </>
+  );
+}
 
 function App() {
-  const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
   const [isErasing, setIsErasing] = useState(false);
   const { canvasRef, onMouseDown, onMouseMove, onMouseUp, redo, undo, handleMouseLeave, clearCanvas } = useDrawCanvas({ isErasing });
 
-  const sendMessage = () => {
-    socket.emit("hello");
-  };
-
-  useEffect(() => {
-    function onConnect() {
-      setIsConnected(true);
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-    }
-
-    socket.on("connect", onConnect);
-
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-    };
-  }, []);
+  const { isConnected, connect, disconnect } = useSocketConnection();
 
   return (
     <>
@@ -37,6 +35,9 @@ function App() {
       <Button onClick={redo}>Redo</Button>
       <Button onClick={clearCanvas}>Clear</Button>
       <Button onClick={() => setIsErasing(!isErasing)}>Toggle Eraser</Button>
+      <Button onClick={connect}>Connect</Button>
+      <Button onClick={disconnect}>Disconnect</Button>
+
       <div>{`Is erasing: ${isErasing}`}</div>
       <div>{`Is connected: ${isConnected}`}</div>
       <Canvas
