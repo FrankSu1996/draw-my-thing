@@ -14,11 +14,6 @@ export const useCanvas = () => {
   const [currentLine, setCurrentLine] = useState<Line>([]);
 
   useEffect(() => {
-    console.log("undo stack:");
-    console.log(undoStack);
-  }, [undoStack]);
-
-  useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
       const context = canvas.getContext("2d");
@@ -64,27 +59,20 @@ export const useCanvas = () => {
   );
 
   const undo = useCallback(() => {
-    setLineHistory((prevHistory) => {
-      if (prevHistory.length === 0) {
-        return prevHistory;
+    if (lineHistory.length <= 0) return;
+    const undoLine = lineHistory[lineHistory.length - 1];
+    const newHistory = [...lineHistory];
+    newHistory.pop();
+    setLineHistory(newHistory);
+    setUndoStack((prev) => [...prev, undoLine]);
+    if (canvasRef.current) {
+      CanvasUtils.clear(canvasRef.current);
+      for (const line of newHistory) {
+        CanvasUtils.beginDrawLine(canvasRef.current, line[0]);
+        CanvasUtils.drawLine(canvasRef.current, line);
       }
-      const newHistory = prevHistory.slice(0, -1);
-      const undoLine = prevHistory[prevHistory.length - 1];
-
-      const newUndoStack = undoStack.slice();
-      newUndoStack.push(undoLine);
-      setUndoStack(newUndoStack);
-
-      if (canvasRef.current) {
-        CanvasUtils.clear(canvasRef.current);
-        for (const line of newHistory) {
-          CanvasUtils.beginDrawLine(canvasRef.current, line[0]);
-          CanvasUtils.drawLine(canvasRef.current, line);
-        }
-      }
-      return newHistory;
-    });
-  }, [undoStack]);
+    }
+  }, [lineHistory]);
 
   const redo = useCallback(() => {
     if (undoStack.length <= 0) return;
