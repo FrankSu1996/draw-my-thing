@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type MouseEventHandler } from "react";
 import type { Line, Point } from "../../../../lib";
 import { CanvasUtils } from "../utils";
+import _ from "lodash";
 
 // hook for encapsulating canvas operations
 export const useCanvas = () => {
@@ -11,6 +12,11 @@ export const useCanvas = () => {
   const [lineHistory, setLineHistory] = useState<Line[]>([]);
   const [undoStack, setUndoStack] = useState<Line[]>([]);
   const [currentLine, setCurrentLine] = useState<Line>([]);
+
+  useEffect(() => {
+    console.log("undo stack:");
+    console.log(undoStack);
+  }, [undoStack]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -57,20 +63,58 @@ export const useCanvas = () => {
     [isDrawing]
   );
 
-  const undo = () => {};
+  const undo = useCallback(() => {
+    setLineHistory((prevHistory) => {
+      if (prevHistory.length === 0) {
+        return prevHistory;
+      }
+      const newHistory = prevHistory.slice(0, -1);
+      const undoLine = prevHistory[prevHistory.length - 1];
 
-  const redo = () => {};
+      const newUndoStack = undoStack.slice();
+      newUndoStack.push(undoLine);
+      setUndoStack(newUndoStack);
 
-  const methods = {
+      if (canvasRef.current) {
+        CanvasUtils.clear(canvasRef.current);
+        for (const line of newHistory) {
+          CanvasUtils.beginDrawLine(canvasRef.current, line[0]);
+          CanvasUtils.drawLine(canvasRef.current, line);
+        }
+      }
+      return newHistory;
+    });
+  }, [undoStack]);
+
+  const redo = useCallback(() => {
+    if (undoStack.length <= 0) return;
+
+    const redoLine = undoStack[undoStack.length - 1];
+    const newHistory = [...lineHistory];
+    newHistory.push(redoLine);
+    setLineHistory(newHistory);
+    setUndoStack(undoStack.slice(0, -1));
+
+    if (canvasRef.current) {
+      CanvasUtils.clear(canvasRef.current);
+      for (const line of newHistory) {
+        CanvasUtils.beginDrawLine(canvasRef.current, line[0]);
+        CanvasUtils.drawLine(canvasRef.current, line);
+      }
+    }
+  }, [lineHistory, undoStack]);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsDrawing(false);
+  }, []);
+
+  return {
+    canvasRef,
     handleMouseDown,
     handleMouseUp,
     handleMouseMove,
     undo,
     redo,
-  };
-
-  return {
-    canvasRef,
-    methods,
+    handleMouseLeave,
   };
 };

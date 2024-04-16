@@ -1,13 +1,11 @@
-import { CanvasHTMLAttributes, FC } from "react";
+import { CanvasHTMLAttributes, FC, useEffect } from "react";
 import { Button } from "./button";
 import { useCanvas } from "@/lib/hooks/useCanvas";
 
 type CanvasProps = CanvasHTMLAttributes<HTMLCanvasElement>;
 
 export const Canvas: FC<CanvasProps> = (props) => {
-  const { canvasRef, methods } = useCanvas();
-
-  const { handleMouseDown, handleMouseMove, handleMouseUp, redo, undo } = methods;
+  const { canvasRef, handleMouseDown, handleMouseMove, handleMouseUp, redo, undo, handleMouseLeave } = useCanvas();
 
   return (
     <>
@@ -17,6 +15,7 @@ export const Canvas: FC<CanvasProps> = (props) => {
         {...props}
         ref={canvasRef}
         onMouseDown={handleMouseDown}
+        onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         className="border-2 border-gray-300 rounded-lg"
