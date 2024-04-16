@@ -1,27 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
-import { socket } from "./socket";
 import { Button } from "@/components/ui/button";
 import { Canvas } from "@/components/ui/canvas";
 import { useDrawCanvas } from "./lib/hooks/useDrawCanvas";
 import { useSocketConnection } from "./lib/hooks/useSocketConnection";
-
-export function ConnectionManager() {
-  function connect() {
-    socket.connect();
-  }
-
-  function disconnect() {
-    socket.disconnect();
-  }
-
-  return (
-    <>
-      <Button onClick={connect}>Connect</Button>
-      <Button onClick={disconnect}>Disconnect</Button>
-    </>
-  );
-}
+import { ThemeToggle } from "./components/ui/theme-toggle";
+import { LobbyPage } from "./pages/lobby-page";
 
 function App() {
   const [isErasing, setIsErasing] = useState(false);
@@ -31,15 +15,15 @@ function App() {
 
   return (
     <>
-      <Button onClick={undo}>Undo</Button>
+      {/* <Button onClick={undo}>Undo</Button>
       <Button onClick={redo}>Redo</Button>
       <Button onClick={clearCanvas}>Clear</Button>
       <Button onClick={() => setIsErasing(!isErasing)}>Toggle Eraser</Button>
-      <Button onClick={connect}>Connect</Button>
-      <Button onClick={disconnect}>Disconnect</Button>
 
+      <img src="/output-onlinepngtools.png" alt="" />
       <div>{`Is erasing: ${isErasing}`}</div>
       <div>{`Is connected: ${isConnected}`}</div>
+      <ThemeToggle />
       <Canvas
         ref={canvasRef}
         width={800}
@@ -48,7 +32,8 @@ function App() {
         onMouseLeave={handleMouseLeave}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
-      />
+      /> */}
+      <LobbyPage />
     </>
   );
 }
