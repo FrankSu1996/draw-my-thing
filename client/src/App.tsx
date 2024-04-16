@@ -3,12 +3,12 @@ import "./App.css";
 import { socket } from "./socket";
 import { Button } from "@/components/ui/button";
 import { Canvas } from "@/components/ui/canvas";
-import { useCanvas } from "./lib/hooks/useCanvas";
+import { useDrawCanvas } from "./lib/hooks/useDrawCanvas";
 
 function App() {
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
   const [isErasing, setIsErasing] = useState(false);
-  const { canvasRef, onMouseDown, onMouseMove, onMouseUp, redo, undo, handleMouseLeave, clearCanvas } = useCanvas({ isErasing });
+  const { canvasRef, onMouseDown, onMouseMove, onMouseUp, redo, undo, handleMouseLeave, clearCanvas } = useDrawCanvas({ isErasing });
 
   const sendMessage = () => {
     socket.emit("hello");

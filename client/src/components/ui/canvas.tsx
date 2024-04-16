@@ -1,6 +1,6 @@
 import { CanvasHTMLAttributes, FC, forwardRef, useEffect } from "react";
 import { Button } from "./button";
-import { useCanvas } from "@/lib/hooks/useCanvas";
+import { useDrawCanvas } from "@/lib/hooks/useDrawCanvas";
 
 interface CanvasProps extends CanvasHTMLAttributes<HTMLCanvasElement> {}
 export const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {

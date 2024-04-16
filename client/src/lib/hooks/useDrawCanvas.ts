@@ -7,8 +7,8 @@ type UseCanvasConfig = {
   isErasing?: boolean;
 };
 
-// hook for encapsulating canvas operations
-export const useCanvas = ({ isErasing }: UseCanvasConfig) => {
+// hook for encapsulating canvas operations on the drawing canvas
+export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // state for drawing
@@ -16,10 +16,7 @@ export const useCanvas = ({ isErasing }: UseCanvasConfig) => {
   const [canvasHistory, setCanvasHistory] = useState<ImageData[]>([]);
   const [undoStack, setUndoStack] = useState<ImageData[]>([]);
 
-  useEffect(() => {
-    console.log(canvasHistory);
-  }, [canvasHistory]);
-
+  // configure canvas context and watch for change in isErasing
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
