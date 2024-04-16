@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type MouseEventHandler } from "react";
 import type { Line, Point } from "../../../../lib";
-import { CanvasUtils } from "../utils";
 import _ from "lodash";
+import { CanvasUtils } from "../utils/canvasUtils";
+
+type UseCanvasConfig = {
+  isErasing?: boolean;
+};
 
 // hook for encapsulating canvas operations
-export const useCanvas = () => {
+export const useCanvas = ({ isErasing = false }: UseCanvasConfig = {}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // state for drawing
@@ -25,7 +29,7 @@ export const useCanvas = () => {
     }
   }, []);
 
-  const handleMouseDown = useCallback((event: MouseEvent<HTMLCanvasElement>) => {
+  const onMouseDown = useCallback((event: MouseEvent<HTMLCanvasElement>) => {
     if (canvasRef.current) {
       setIsDrawing(true);
       const startPoint = {
@@ -36,7 +40,7 @@ export const useCanvas = () => {
     }
   }, []);
 
-  const handleMouseUp: MouseEventHandler<HTMLCanvasElement> = useCallback(() => {
+  const onMouseUp: MouseEventHandler<HTMLCanvasElement> = useCallback(() => {
     if (currentLine.length > 0) {
       setLineHistory((history) => [...history, currentLine]);
       setCurrentLine([]);
@@ -44,7 +48,7 @@ export const useCanvas = () => {
     setIsDrawing(false);
   }, [currentLine]);
 
-  const handleMouseMove = useCallback(
+  const onMouseMove = useCallback(
     (event: MouseEvent<HTMLCanvasElement>) => {
       if (!isDrawing || !canvasRef.current) return;
 
@@ -96,13 +100,20 @@ export const useCanvas = () => {
     setIsDrawing(false);
   }, []);
 
+  const clearCanvas = useCallback(() => {
+    if (canvasRef.current) {
+      CanvasUtils.clear(canvasRef.current);
+    }
+  }, []);
+
   return {
     canvasRef,
-    handleMouseDown,
-    handleMouseUp,
-    handleMouseMove,
+    onMouseDown,
+    onMouseUp,
+    onMouseMove,
     undo,
     redo,
     handleMouseLeave,
+    clearCanvas,
   };
 };
