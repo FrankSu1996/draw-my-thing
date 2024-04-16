@@ -36,11 +36,13 @@ function App() {
       <Button onClick={undo}>Undo</Button>
       <Button onClick={redo}>Redo</Button>
       <Button onClick={clearCanvas}>Clear</Button>
+      <Button onClick={() => setIsErasing(!isErasing)}>Toggle Eraser</Button>
+      <div>{`Is erasing: ${isErasing}`}</div>
+      <div>{`Is connected: ${isConnected}`}</div>
       <Canvas
         ref={canvasRef}
         width={800}
         height={800}
-        isErasing={isErasing}
         onMouseDown={onMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseMove={onMouseMove}

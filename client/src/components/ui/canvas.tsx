@@ -2,10 +2,7 @@ import { CanvasHTMLAttributes, FC, forwardRef, useEffect } from "react";
 import { Button } from "./button";
 import { useCanvas } from "@/lib/hooks/useCanvas";
 
-interface CanvasProps extends CanvasHTMLAttributes<HTMLCanvasElement> {
-  isErasing?: boolean;
-}
-
+interface CanvasProps extends CanvasHTMLAttributes<HTMLCanvasElement> {}
 export const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>((props, ref) => {
   return (
     <>

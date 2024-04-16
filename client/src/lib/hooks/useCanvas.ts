@@ -1,33 +1,39 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type MouseEventHandler } from "react";
 import type { Line, Point } from "../../../../lib";
 import _ from "lodash";
-import { CanvasUtils } from "../utils/canvasUtils";
+import { CanvasUtils, getCanvasContext } from "../utils/canvasUtils";
 
 type UseCanvasConfig = {
   isErasing?: boolean;
 };
 
 // hook for encapsulating canvas operations
-export const useCanvas = ({ isErasing = false }: UseCanvasConfig = {}) => {
+export const useCanvas = ({ isErasing }: UseCanvasConfig) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // state for drawing
   const [isDrawing, setIsDrawing] = useState(false);
-  const [lineHistory, setLineHistory] = useState<Line[]>([]);
-  const [undoStack, setUndoStack] = useState<Line[]>([]);
-  const [currentLine, setCurrentLine] = useState<Line>([]);
+  const [canvasHistory, setCanvasHistory] = useState<ImageData[]>([]);
+  const [undoStack, setUndoStack] = useState<ImageData[]>([]);
+
+  useEffect(() => {
+    console.log(canvasHistory);
+  }, [canvasHistory]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
-      const context = canvas.getContext("2d");
+      const context = getCanvasContext(canvas);
       if (context) {
         context.lineCap = "round";
         context.strokeStyle = "black";
         context.lineWidth = 5;
+        context;
+        // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
+        context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
       }
     }
-  }, []);
+  }, [isErasing]);
 
   const onMouseDown = useCallback((event: MouseEvent<HTMLCanvasElement>) => {
     if (canvasRef.current) {
@@ -41,12 +47,12 @@ export const useCanvas = ({ isErasing = false }: UseCanvasConfig = {}) => {
   }, []);
 
   const onMouseUp: MouseEventHandler<HTMLCanvasElement> = useCallback(() => {
-    if (currentLine.length > 0) {
-      setLineHistory((history) => [...history, currentLine]);
-      setCurrentLine([]);
+    if (canvasRef.current) {
+      const imageData = CanvasUtils.getImageData(canvasRef.current);
+      if (imageData) setCanvasHistory((prev) => [...prev, imageData]);
     }
     setIsDrawing(false);
-  }, [currentLine]);
+  }, []);
 
   const onMouseMove = useCallback(
     (event: MouseEvent<HTMLCanvasElement>) => {
@@ -56,45 +62,51 @@ export const useCanvas = ({ isErasing = false }: UseCanvasConfig = {}) => {
         x: event.nativeEvent.offsetX,
         y: event.nativeEvent.offsetY,
       };
-      setCurrentLine((current) => [...current, endPoint]);
       CanvasUtils.drawLine(canvasRef.current, [endPoint]);
     },
     [isDrawing]
   );
 
   const undo = useCallback(() => {
-    if (lineHistory.length <= 0) return;
-    const undoLine = lineHistory[lineHistory.length - 1];
-    const newHistory = [...lineHistory];
-    newHistory.pop();
-    setLineHistory(newHistory);
-    setUndoStack((prev) => [...prev, undoLine]);
+    if (canvasHistory.length <= 0) return;
+
     if (canvasRef.current) {
-      CanvasUtils.clear(canvasRef.current);
-      for (const line of newHistory) {
-        CanvasUtils.beginDrawLine(canvasRef.current, line[0]);
-        CanvasUtils.drawLine(canvasRef.current, line);
+      if (canvasHistory.length === 1) {
+        setUndoStack((prev) => [...prev, canvasHistory[0]]);
+        setCanvasHistory([]);
+        CanvasUtils.clear(canvasRef.current);
+        return;
       }
+      // Set the new canvas history state to all but the last entry
+      const undoStepImageData = canvasHistory[canvasHistory.length - 1];
+      const newCanvasHistory = canvasHistory.slice(0, -1);
+      setCanvasHistory(newCanvasHistory);
+      setUndoStack((prev) => [...prev, undoStepImageData]);
+
+      // Clear the canvas
+      CanvasUtils.clear(canvasRef.current);
+
+      // Get the second to last canvas image data (now the last after update)
+      const lastSavedImageData = newCanvasHistory[newCanvasHistory.length - 1];
+
+      // Put the image data on the canvas
+      CanvasUtils.putImageData(canvasRef.current, lastSavedImageData);
     }
-  }, [lineHistory]);
+  }, [canvasHistory]);
 
   const redo = useCallback(() => {
     if (undoStack.length <= 0) return;
 
-    const redoLine = undoStack[undoStack.length - 1];
-    const newHistory = [...lineHistory];
-    newHistory.push(redoLine);
-    setLineHistory(newHistory);
+    const redoImageData = undoStack[undoStack.length - 1];
     setUndoStack(undoStack.slice(0, -1));
-
+    setCanvasHistory((prev) => [...prev, redoImageData]);
     if (canvasRef.current) {
+      // Clear the canvas
       CanvasUtils.clear(canvasRef.current);
-      for (const line of newHistory) {
-        CanvasUtils.beginDrawLine(canvasRef.current, line[0]);
-        CanvasUtils.drawLine(canvasRef.current, line);
-      }
+      // Put the image data on the canvas
+      CanvasUtils.putImageData(canvasRef.current, redoImageData);
     }
-  }, [lineHistory, undoStack]);
+  }, [undoStack]);
 
   const handleMouseLeave = useCallback(() => {
     setIsDrawing(false);
@@ -103,6 +115,9 @@ export const useCanvas = ({ isErasing = false }: UseCanvasConfig = {}) => {
   const clearCanvas = useCallback(() => {
     if (canvasRef.current) {
       CanvasUtils.clear(canvasRef.current);
+      setIsDrawing(false);
+      setUndoStack([]);
+      setCanvasHistory([]);
     }
   }, []);
 
