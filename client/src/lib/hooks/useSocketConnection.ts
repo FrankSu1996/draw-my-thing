@@ -1,17 +1,18 @@
 import { socket } from "@/socket";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export const useSocketConnection = () => {
   const [isConnected, setIsConnected] = useState(socket.connected);
 
-  const connect = () => {
+  const connect = useCallback(() => {
     socket.connect();
     setIsConnected(true);
-  };
-  const disconnect = () => {
+  }, []);
+
+  const disconnect = useCallback(() => {
     socket.disconnect();
     setIsConnected(false);
-  };
+  }, []);
 
   return {
     isConnected,
