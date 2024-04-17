@@ -5,7 +5,6 @@ import { Canvas } from "@/components/ui/canvas";
 import { useDrawCanvas } from "./lib/hooks/useDrawCanvas";
 import { useSocketConnection } from "./lib/hooks/useSocketConnection";
 import { ThemeToggle } from "./components/ui/theme-toggle";
-import { LobbyPage } from "./pages/lobby-page";
 
 function App() {
   const [isErasing, setIsErasing] = useState(false);
@@ -33,7 +32,6 @@ function App() {
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
       /> */}
-      <LobbyPage />
     </>
   );
 }
