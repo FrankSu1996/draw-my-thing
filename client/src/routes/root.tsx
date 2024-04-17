@@ -3,12 +3,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Root() {
+  const navigate = useNavigate();
   return (
-    <div className="w-full  lg:min-h-[600px] xl:min-h-[800px] place-items-center">
-      <div className="flex items-center justify-center py-12">
+    <div className="w-full place-items-center mt-8">
+      <div className="flex items-center justify-center flex-col gap-5">
+        <div className="flex flex-col place-content-center place-items-center">
+          <img src="light/logo-text.png" alt="" className="max-w-[500px]" />
+          <img src="light/logo.png" alt="" width={150} height={100} />
+        </div>
         <Card className="py-4 px-10">
           <CardContent>
             <div className="mx-auto grid w-[350px] gap-6">
@@ -43,10 +49,10 @@ export function Root() {
                     <CarouselNext />
                   </Carousel>
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full h-14 text-xl">
                   Play Online
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full h-12 text-lg" onClick={() => navigate("/game")}>
                   Create Private Room
                 </Button>
               </div>
