@@ -4,26 +4,13 @@ import { Textarea } from "../textarea";
 import { Label } from "../label";
 import { useRef } from "react";
 import { ReactSketchCanvas, type ReactSketchCanvasRef } from "react-sketch-canvas";
+import { DrawCanvas } from "./draw-canvas";
 
 export const DrawContainer = () => {
-  const canvasRef = useRef<ReactSketchCanvasRef>(null);
-  const styles = {
-    border: "0.0625rem solid #9c9c9c",
-    borderRadius: "0.25rem",
-  };
   return (
     <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-4 w-3/5 gap-5">
       <div className="h-full w-full">
-        <ReactSketchCanvas
-          style={styles}
-          width="600"
-          height="400"
-          strokeWidth={4}
-          strokeColor="red"
-          className="h-full"
-          onChange={(e) => console.log(e)}
-          ref={canvasRef}
-        />
+        <DrawCanvas />
       </div>
       <form
         className="relative overflow-hidden rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring"
