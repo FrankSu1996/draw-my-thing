@@ -20,8 +20,9 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
-  socket.on("hello", () => {
-    console.log("received message: ");
+  socket.on("canvasOnChange", (e) => {
+    console.log("canvas change firing");
+    socket.broadcast.emit("canvasOnChange", e);
   });
   socket.on("disconnect", () => {
     console.log(`User Disconnected: ${socket.id}`);
