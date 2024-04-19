@@ -13,11 +13,11 @@ export const DrawContainer = () => {
 
   return (
     <div className="relative flex h-full flex-col rounded-xl w-3/5">
-      <div className="p-4 flex-1 shrink" ref={canvasParentRef}>
+      <div className="flex-1 shrink" ref={canvasParentRef}>
         {isDrawCanvas ? <DrawCanvas width={size?.width} height={size?.height} /> : <ReceiveCanvas width={size?.width} height={size?.height} />}
       </div>
       <div
-        className="mx-4 relative overflow-auto rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring basis-1/4"
+        className="relative overflow-auto rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring basis-1/4"
         x-chunk="dashboard-03-chunk-1"
       >
         <Label htmlFor="message" className="sr-only">
