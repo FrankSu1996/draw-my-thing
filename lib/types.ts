@@ -1,9 +1,11 @@
 export interface ServerToClientEvents {
-  canvasOnChange: (canvasPath) => void;
+  canvasMouseMove: (point: Point) => void;
+  canvasMouseDown: (point: Point) => void;
 }
 
 export interface ClientToServerEvents {
-  canvasOnChange: (canvasPath) => void;
+  canvasMouseMove: (e: Point) => void;
+  canvasMouseDown: (e: Point) => void;
 }
 
 export interface InterServerEvents {
@@ -14,3 +16,9 @@ export interface SocketData {
   name: string;
   age: number;
 }
+
+export type Point = {
+  x: number;
+  y: number;
+};
+export type Line = Point[];

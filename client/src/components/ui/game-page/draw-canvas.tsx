@@ -2,25 +2,10 @@ import { ReactSketchCanvas, type CanvasPath, type ReactSketchCanvasRef } from "r
 import { useEffect, useRef } from "react";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import _ from "lodash";
+import { useDrawCanvas } from "@/lib/hooks/useCanvas";
 
 export const DrawCanvas = () => {
-  const canvasRef = useRef<ReactSketchCanvasRef>(null);
+  const { canvasRef, onMouseDown, onMouseMove, onMouseUp } = useDrawCanvas({ isErasing: false });
 
-  const { socket } = useSocketConnection();
-
-  const throttledCanvasChange = _.throttle((e: CanvasPath[]) => {
-    socket.emit("canvasOnChange", e);
-  }, 75);
-
-  return (
-    <ReactSketchCanvas
-      width="600"
-      height="400"
-      strokeWidth={4}
-      strokeColor="red"
-      className="h-full border rounded"
-      onChange={throttledCanvasChange}
-      ref={canvasRef}
-    />
-  );
+  return <canvas width={600} height={600} ref={canvasRef} onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp}></canvas>;
 };
