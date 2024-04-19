@@ -127,6 +127,8 @@ export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
     }
   }, []);
 
+  const resizeCanvas = () => {};
+
   return {
     canvasRef,
     onMouseDown,
@@ -146,20 +148,10 @@ export const useReceiveCanvas = ({ isErasing }: UseCanvasConfig) => {
   useEffect(() => {
     if (isConnected && canvasRef.current) {
       socket.on("canvasMouseDown", (point: Point) => {
-        const context = canvasRef.current?.getContext("2d");
-        if (context) {
-          context.beginPath();
-          context.moveTo(point.x, point.y);
-        }
-        //CanvasUtils.beginDrawLine(canvasRef.current!, point);
+        CanvasUtils.beginDrawLine(canvasRef.current!, point);
       });
       socket.on("canvasMouseMove", (point: Point) => {
-        const context = canvasRef.current?.getContext("2d");
-        if (context) {
-          context.lineTo(point.x, point.y);
-          context.stroke();
-        }
-        //CanvasUtils.drawLine(canvasRef.current!, [point]);
+        CanvasUtils.drawLine(canvasRef.current!, [point]);
       });
     }
 
