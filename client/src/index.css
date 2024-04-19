@@ -74,3 +74,16 @@
       @apply bg-background text-foreground;
     }
   }
+
+  @font-face {
+    font-family: 'doodly';
+    src: url('/fonts/doodly.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'doodly1';
+    src: url('/fonts/doodly1.otf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+  }

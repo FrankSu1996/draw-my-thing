@@ -206,8 +206,8 @@ export const useReceiveCanvas = ({ isErasing }: UseCanvasConfig) => {
     const resizeCanvas = _.debounce(() => {
       const canvas = canvasRef.current;
       if (canvas && canvas.parentElement) {
-        canvas.width = canvas.parentElement.clientWidth;
-        canvas.height = canvas.parentElement.clientHeight;
+        //canvas.width = canvas.parentElement.clientWidth;
+        //canvas.height = canvas.parentElement.clientHeight;
         const context = canvas.getContext("2d");
         if (context) {
           context.lineCap = "round";

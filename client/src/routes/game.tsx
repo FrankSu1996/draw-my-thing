@@ -16,11 +16,11 @@ export function Game() {
   }, [connect, disconnect]);
 
   return (
-    <div className="h-screen w-full">
+    <div className="h-screen w-full p-4">
       <div className="flex flex-col h-full">
-        <header className="sticky top-0 z-10 flex h-[57px] items-center gap-1 bg-background px-4 py-12 justify-between">
+        <header className="sticky top-0 z-10 flex items-center gap-1 bg-background px-4 justify-between py-4">
           <div className="flex items-center justify-center">
-            <img src="light/logo-text.png" className="px-3" width={450} />
+            <h1 style={{ fontFamily: "doodly1", fontSize: "6rem" }}>Draw My Thing</h1>
             <img src="light/logo.png" className="pl-10" width={140} />
           </div>
           <ThemeToggle />
