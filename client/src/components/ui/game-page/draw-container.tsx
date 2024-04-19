@@ -8,7 +8,7 @@ export const DrawContainer = () => {
   const [isDrawCanvas, setIsDrawCanvas] = useState(true);
 
   return (
-    <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-4 w-3/5 gap-5">
+    <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl p-4 w-3/5 gap-5">
       <div className="h-full w-full ">{isDrawCanvas ? <DrawCanvas /> : <ReceiveCanvas />}</div>
       <div
         className="relative overflow-hidden rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring"

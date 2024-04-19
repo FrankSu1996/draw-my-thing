@@ -8,5 +8,7 @@ import { Button } from "../button";
 export const DrawCanvas = () => {
   const { canvasRef, onMouseDown, onMouseMove, onMouseUp } = useDrawCanvas({ isErasing: false });
 
-  return <canvas ref={canvasRef} onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp}></canvas>;
+  return (
+    <canvas ref={canvasRef} onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp} className="bg-muted/50 rounded-lg"></canvas>
+  );
 };
