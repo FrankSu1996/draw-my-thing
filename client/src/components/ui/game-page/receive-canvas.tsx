@@ -7,5 +7,5 @@ import { type ReactSketchCanvasRef, ReactSketchCanvas, type CanvasPath } from "r
 export const ReceiveCanvas = () => {
   const { canvasRef } = useReceiveCanvas({ isErasing: false });
 
-  return <canvas width={600} height={600} ref={canvasRef} className="border"></canvas>;
+  return <canvas ref={canvasRef}></canvas>;
 };

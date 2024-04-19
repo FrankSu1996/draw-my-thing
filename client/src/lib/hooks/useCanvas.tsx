@@ -28,12 +28,38 @@ export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
         context.lineCap = "round";
         context.strokeStyle = "black";
         context.lineWidth = 5;
-        context;
         // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
         context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
       }
     }
   }, [isErasing]);
+
+  // watch for resize events, debounce the handler so it doesn't overfire
+  useEffect(() => {
+    const resizeCanvas = _.debounce(() => {
+      const canvas = canvasRef.current;
+      if (canvas && canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        const context = canvas.getContext("2d");
+        if (context) {
+          context.lineCap = "round";
+          context.strokeStyle = "black";
+          context.lineWidth = 5;
+          // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
+          context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
+        }
+      }
+      if (canvas) {
+        CanvasUtils.putImageData(canvas, canvasHistory[canvasHistory.length - 1]);
+      }
+    }, 100);
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, [isErasing, canvasHistory]);
 
   const onMouseDown = useCallback(
     (event: MouseEvent<HTMLCanvasElement>) => {
@@ -127,8 +153,6 @@ export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
     }
   }, []);
 
-  const resizeCanvas = () => {};
-
   return {
     canvasRef,
     onMouseDown,
@@ -175,6 +199,30 @@ export const useReceiveCanvas = ({ isErasing }: UseCanvasConfig) => {
         context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
       }
     }
+  }, [isErasing]);
+
+  // watch for resize events, debounce the handler so it doesn't overfire
+  useEffect(() => {
+    const resizeCanvas = _.debounce(() => {
+      const canvas = canvasRef.current;
+      if (canvas && canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        const context = canvas.getContext("2d");
+        if (context) {
+          context.lineCap = "round";
+          context.strokeStyle = "black";
+          context.lineWidth = 5;
+          // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
+          context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
+        }
+      }
+    }, 100);
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    return () => window.removeEventListener("resize", resizeCanvas);
   }, [isErasing]);
 
   return {
