@@ -6,7 +6,7 @@ import { useDrawCanvas } from "@/lib/hooks/useCanvas";
 import { Button } from "../button";
 
 export const DrawCanvas = ({ width, height }) => {
-  const { canvasRef, onMouseDown, onMouseMove, onMouseUp } = useDrawCanvas({ isErasing: false });
+  const { canvasRef, onMouseDown, onMouseMove, onMouseUp, handleMouseLeave } = useDrawCanvas({ isErasing: false });
 
   return (
     <canvas
@@ -14,6 +14,7 @@ export const DrawCanvas = ({ width, height }) => {
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
+      onMouseLeave={handleMouseLeave}
       className="bg-muted/50 rounded-lg"
       width={width}
       height={height}
