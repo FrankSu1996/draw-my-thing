@@ -17,7 +17,7 @@ export function Game() {
   }, [connect, disconnect]);
 
   return (
-    <div className="h-screen w-full p-20 pt-10">
+    <div className="h-screen w-full px-32 py-10">
       <div className="flex flex-col h-full gap-2">
         <header className="sticky top-0 z-10 flex items-center justify-between bg-background shadow-md p-2 pt-0 rounded-lg">
           <div className="flex items-center justify-center">
@@ -26,7 +26,7 @@ export function Game() {
           </div>
         </header>
         <GameBar />
-        <main className="flex overflow-auto flex-1 gap-1">
+        <main className="flex overflow-auto flex-1 gap-3">
           <Chatbox />
           <DrawContainer />
           <PlayerList />
