@@ -12,7 +12,7 @@ export const DrawContainer = () => {
   const size = useSize(canvasParentRef);
 
   return (
-    <div className="relative flex h-full flex-col rounded-xl w-3/5">
+    <div className="relative flex h-full flex-col rounded-xl w-3/5 gap-2">
       <div className="flex-1 shrink" ref={canvasParentRef}>
         {isDrawCanvas ? <DrawCanvas width={size?.width} height={size?.height} /> : <ReceiveCanvas width={size?.width} height={size?.height} />}
       </div>

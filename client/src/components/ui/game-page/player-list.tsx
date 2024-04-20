@@ -4,10 +4,8 @@ import { Textarea } from "../textarea";
 import { Badge } from "../badge";
 import { Label } from "../label";
 
+const PlayerCard = () => {};
+
 export const PlayerList = () => {
-  return (
-    <div className="flex h-full flex-col rounded-xl p-4 w-1/5">
-      <Button className="">Testing</Button>
-    </div>
-  );
+  return <div className="flex h-full flex-col rounded-xl p-4 w-1/5"></div>;
 };

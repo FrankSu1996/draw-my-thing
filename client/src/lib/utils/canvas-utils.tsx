@@ -37,6 +37,6 @@ export class CanvasUtils {
 
   static putImageData(canvas: HTMLCanvasElement, imageData: ImageData) {
     const context = getCanvasContext(canvas);
-    if (context) context.putImageData(imageData, 0, 0);
+    if (context && imageData instanceof ImageData) context.putImageData(imageData, 0, 0);
   }
 }

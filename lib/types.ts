@@ -22,3 +22,4 @@ export type Point = {
   y: number;
 };
 export type Line = Point[];
+export type TCharacter = "fat-cat";

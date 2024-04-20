@@ -5,9 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useDispatch, useSelector } from "react-redux";
+import { selectPlayerName, setPlayerName } from "@/redux/gameSlice";
 
 export function Root() {
   const navigate = useNavigate();
+  const playerName = useSelector(selectPlayerName);
+  const dispatch = useDispatch();
+
   return (
     <div className="w-full place-items-center mt-8">
       <div className="flex items-center justify-center flex-col gap-5">
@@ -24,7 +29,7 @@ export function Root() {
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="name">name</Label>
-                  <Input id="name" type="text" placeholder="" required />
+                  <Input id="name" type="text" placeholder="" required value={playerName} onChange={(e) => dispatch(setPlayerName(e.target.value))} />
                 </div>
                 <div>
                   <Carousel className="w-full">
@@ -60,15 +65,6 @@ export function Root() {
           </CardContent>
         </Card>
       </div>
-      {/* <div className="hidden lg:block pr-10">
-        <img
-          src="/light/logo.png"
-          alt="Image"
-          width="1920"
-          height="1080"
-          className="h-full w-full object-contain dark:brightness-[0.2] dark:grayscale"
-        />
-      </div> */}
     </div>
   );
 }

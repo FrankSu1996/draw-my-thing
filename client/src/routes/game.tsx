@@ -1,5 +1,6 @@
 import { Chatbox } from "@/components/ui/game-page/chatbox";
 import { DrawContainer } from "@/components/ui/game-page/draw-container";
+import { GameBar } from "@/components/ui/game-page/game-bar";
 import { PlayerList } from "@/components/ui/game-page/player-list";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -16,18 +17,16 @@ export function Game() {
   }, [connect, disconnect]);
 
   return (
-    <div className="h-screen w-full p-4">
-      <div className="flex flex-col h-full">
-        <header className="sticky top-0 z-10 flex items-center gap-1 bg-background px-4 justify-between py-4 pt-0">
+    <div className="h-screen w-full p-20 pt-10">
+      <div className="flex flex-col h-full gap-2">
+        <header className="sticky top-0 z-10 flex items-center justify-between bg-background shadow-md p-2 pt-0 rounded-lg">
           <div className="flex items-center justify-center">
-            <h1 style={{ fontFamily: "doodly1", fontSize: "6rem" }}>Draw My Thing</h1>
-            <img src="light/logo.png" className="pl-20" width={300} />
+            <h1 style={{ fontFamily: "doodly1", fontSize: "5.5rem" }}>Draw My Thing</h1>
+            <img src="light/logo.png" className="pl-20" width={250} />
           </div>
-
-          <ThemeToggle />
         </header>
-        <Separator />
-        <main className="flex overflow-auto flex-1">
+        <GameBar />
+        <main className="flex overflow-auto flex-1 gap-1">
           <Chatbox />
           <DrawContainer />
           <PlayerList />

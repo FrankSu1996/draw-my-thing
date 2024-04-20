@@ -1,8 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
+import gameReducer from "./gameSlice";
 // ...
 
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    game: gameReducer,
+  },
   devTools: import.meta.env.MODE === "development",
 });
 
