@@ -13,15 +13,14 @@ import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import { cn } from "@/lib/utils/utils";
 import { Close } from "@radix-ui/react-popover";
 
-export const CanvasToolbar = () => {
+type ToolbarProps = {
+  onChangeColor: (color: Color) => void;
+};
+
+export const CanvasToolbar = ({ onChangeColor }: ToolbarProps) => {
   const [selectedColor, setSelectedColor] = useState<Color | null>(null);
   const [isErasing, setIsErasing] = useState(false);
   const { socket } = useSocketConnection();
-
-  const handleChangeColor = (color: Color) => {
-    setSelectedColor(color);
-    socket.emit("canvasChangeColor", color);
-  };
 
   const handleClick: MouseEventHandler = (event) => {
     // Find the closest ancestor element that has a 'data-color' attribute
@@ -31,7 +30,7 @@ export const CanvasToolbar = () => {
       if (colorElement) {
         // Retrieve the color from the 'data-color' attribute
         const color = colorElement.getAttribute("data-color") as Color;
-        if (color) handleChangeColor(color);
+        if (color) onChangeColor(color);
       }
     }
   };

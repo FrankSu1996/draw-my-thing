@@ -1,12 +1,17 @@
+import { CanvasToolbar } from "@/components/ui/game-page/canvas-toolbar";
 import { Chatbox } from "@/components/ui/game-page/chatbox";
+import { DrawCanvas } from "@/components/ui/game-page/draw-canvas";
 import { DrawContainer } from "@/components/ui/game-page/draw-container";
 import { GameBar } from "@/components/ui/game-page/game-bar";
 import { PlayerList } from "@/components/ui/game-page/player-list";
+import { ReceiveCanvas } from "@/components/ui/game-page/receive-canvas";
+import { Color } from "@/lib/config";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function Game() {
   const { connect, disconnect } = useSocketConnection();
+  const [isDrawCanvas, setIsDrawCanvas] = useState(true);
 
   useEffect(() => {
     connect();
@@ -28,7 +33,14 @@ export function Game() {
         <GameBar />
         <main className="flex overflow-auto flex-1 gap-3">
           <Chatbox />
-          <DrawContainer />
+          <div className="relative flex flex-col rounded-xl w-3/5 gap-2">
+            {isDrawCanvas ? (
+              <DrawCanvas width={50} height={50} drawColor={Color.BLACK} />
+            ) : (
+              <ReceiveCanvas width={50} height={50} drawColor={Color.BLACK} />
+            )}
+          </div>
+
           <PlayerList />
         </main>
       </div>

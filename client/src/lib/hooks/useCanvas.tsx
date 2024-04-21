@@ -27,6 +27,8 @@ export const useDrawCanvas = ({ isErasing, drawColor }: UseCanvasConfig) => {
     if (canvas) {
       const context = getCanvasContext(canvas);
       if (context) {
+        context.canvas.height = 50;
+        context.canvas.width = 50;
         context.lineCap = "round";
         context.strokeStyle = drawColor;
         context.lineWidth = 5;
