@@ -3,13 +3,15 @@ import { useRef, useState, type MouseEventHandler } from "react";
 import { DrawCanvas } from "./draw-canvas";
 import { ReceiveCanvas } from "./receive-canvas";
 import { useSize } from "@/lib/hooks/useSize";
-import { Color } from "@/lib/types";
-
+import { BrushSize, Color } from "@/lib/config";
 import { motion } from "framer-motion";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip";
 import { cn } from "@/lib/utils/utils";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import { Button } from "../button";
+import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
+import { Brush, Command } from "lucide-react";
+import { Input } from "../input";
 
 export const DrawContainer = () => {
   const [isDrawCanvas, setIsDrawCanvas] = useState(true);
@@ -47,40 +49,73 @@ export const DrawContainer = () => {
           <ReceiveCanvas width={size && size.width - 5} height={size && size.height - 5} drawColor={selectedColor} />
         )}
       </div>
-      <div className="relative overflow-auto rounded-lg border bg-background">
+      <div className="relative overflow-auto rounded-lg border bg-background py-2">
         <Label htmlFor="message" className="sr-only">
           Message
         </Label>
-        <div className="flex h-full">
-          <div className="flex h-full overflow-hidden" onClick={handleClick}>
-            {Object.values(Color).map((color, index) => {
-              return (
-                <TooltipProvider key={index}>
-                  <Tooltip delayDuration={150}>
-                    <TooltipTrigger>
-                      <motion.div
-                        data-color={color}
-                        key={index}
-                        className={cn("cursor-pointer h-9 w-9 relative")}
-                        style={{ backgroundColor: color }}
-                        initial={{ borderRadius: "10%", borderWidth: "3px", borderColor: "transparent" }}
-                        whileHover={{
-                          scale: 1.05,
-                          borderRadius: "calc(15% * 1.1)",
-                          borderColor: "hsl(var(--border))",
-                          boxShadow: "0 0 8px rgba(255, 255, 255, 0.5)",
-                        }}
-                      ></motion.div>
-                    </TooltipTrigger>
-                    <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1">
-                      <p>{color}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              );
-            })}
-            <Button onClick={() => setIsDrawCanvas(!isDrawCanvas)}>{`Switch to ${isDrawCanvas ? "receive" : "draw"} canvas`}</Button>
-          </div>
+        <div className="flex h-full overflow-hidden" onClick={handleClick}>
+          {Object.values(Color).map((color, index) => {
+            return (
+              <TooltipProvider key={index}>
+                <Tooltip delayDuration={150}>
+                  <TooltipTrigger>
+                    <motion.div
+                      data-color={color}
+                      key={index}
+                      className={cn("cursor-pointer h-9 w-9 relative")}
+                      style={{ backgroundColor: color }}
+                      initial={{ borderRadius: "10%", borderWidth: "1px" }}
+                      transition={{ borderWidth: { duration: 0 } }}
+                      whileHover={{
+                        scale: 1.1,
+                        zIndex: 9999,
+                        borderRadius: "calc(15% * 1.1)",
+                        boxShadow: "0 0 8px rgba(255, 255, 255, 0.5)",
+                        borderWidth: "4px",
+                      }}
+                    ></motion.div>
+                  </TooltipTrigger>
+                  <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1">
+                    <p>{color}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+          <Button onClick={() => setIsDrawCanvas(!isDrawCanvas)}>{`Switch to ${isDrawCanvas ? "receive" : "draw"} canvas`}</Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size={"icon"}>
+                <Brush size={25} />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="mb-4 bg-accent">
+              <div className="grid shadow-2xl rounded">
+                {Object.values(BrushSize).map((size, index) => {
+                  return (
+                    <motion.div
+                      key={index}
+                      className={cn("cursor-pointer h-10 w-10 relative flex items-center justify-center bg-background")}
+                      initial={{ borderRadius: "10%", borderWidth: "1px" }}
+                      whileHover={{
+                        scale: 1.15,
+                        zIndex: 9999,
+                        borderWidth: "4px",
+                        borderRadius: "calc(15% * 1.1)",
+                        boxShadow: "0 0 8px rgba(255, 255, 255, 0.5)",
+                      }}
+                      transition={{ borderWidth: { duration: 0 } }}
+                    >
+                      <div
+                        className={`rounded-full border-foreground border-2`}
+                        style={{ backgroundColor: selectedColor || "hsl(var(--foreground))", width: size.cssValue, height: size.cssValue }}
+                      ></div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import type { Line, Point } from "../../../../lib";
-import type { Color } from "../types";
+import type { Color } from "../config";
 
 const canvasOptions: CanvasRenderingContext2DSettings = {
   willReadFrequently: true,

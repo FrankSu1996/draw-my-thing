@@ -3,7 +3,7 @@ import type { Line, Point } from "../../../../lib";
 import _ from "lodash";
 import { CanvasUtils, getCanvasContext } from "../utils/canvas-utils";
 import { useSocketConnection } from "./useSocketConnection";
-import { Color } from "../types";
+import { Color } from "../config";
 
 type UseCanvasConfig = {
   isErasing: boolean;
