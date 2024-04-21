@@ -10,13 +10,17 @@ import { cn } from "@/lib/utils/utils";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import { Button } from "../button";
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
-import { Brush, Command } from "lucide-react";
+import { Brush, Command, Eraser, Pencil, Trash, Trash2 } from "lucide-react";
 import { Input } from "../input";
+import { Switch } from "../switch";
+import { Toggle } from "../toggle";
+import { HoverMotionDiv } from "../animations/hover-motion-div";
 
 export const DrawContainer = () => {
   const [isDrawCanvas, setIsDrawCanvas] = useState(true);
   const canvasParentRef = useRef<HTMLDivElement | null>(null);
   const [selectedColor, setSelectedColor] = useState<Color | null>(null);
+  const [isErasing, setIsErasing] = useState(false);
 
   const size = useSize(canvasParentRef);
 
@@ -59,21 +63,7 @@ export const DrawContainer = () => {
               <TooltipProvider key={index}>
                 <Tooltip delayDuration={150}>
                   <TooltipTrigger>
-                    <motion.div
-                      data-color={color}
-                      key={index}
-                      className={cn("cursor-pointer h-9 w-9 relative")}
-                      style={{ backgroundColor: color }}
-                      initial={{ borderRadius: "10%", borderWidth: "1px" }}
-                      transition={{ borderWidth: { duration: 0 } }}
-                      whileHover={{
-                        scale: 1.1,
-                        zIndex: 9999,
-                        borderRadius: "calc(15% * 1.1)",
-                        boxShadow: "0 0 8px rgba(255, 255, 255, 0.5)",
-                        borderWidth: "4px",
-                      }}
-                    ></motion.div>
+                    <HoverMotionDiv key={index} data-color={color} style={{ backgroundColor: color }} className={"h-9 w-9"} />
                   </TooltipTrigger>
                   <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1">
                     <p>{color}</p>
@@ -85,37 +75,42 @@ export const DrawContainer = () => {
           <Button onClick={() => setIsDrawCanvas(!isDrawCanvas)}>{`Switch to ${isDrawCanvas ? "receive" : "draw"} canvas`}</Button>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size={"icon"}>
-                <Brush size={25} />
-              </Button>
+              <motion.div whileHover={{ scale: 1.1 }}>
+                <Button variant="outline" size={"icon"}>
+                  <div className={`rounded-full border-foreground border-2 w-5 h-5 bg-foreground`}></div>
+                </Button>
+              </motion.div>
             </PopoverTrigger>
             <PopoverContent className="mb-4 bg-accent">
               <div className="grid shadow-2xl rounded">
                 {Object.values(BrushSize).map((size, index) => {
                   return (
-                    <motion.div
-                      key={index}
-                      className={cn("cursor-pointer h-10 w-10 relative flex items-center justify-center bg-background")}
-                      initial={{ borderRadius: "10%", borderWidth: "1px" }}
-                      whileHover={{
-                        scale: 1.15,
-                        zIndex: 9999,
-                        borderWidth: "4px",
-                        borderRadius: "calc(15% * 1.1)",
-                        boxShadow: "0 0 8px rgba(255, 255, 255, 0.5)",
-                      }}
-                      transition={{ borderWidth: { duration: 0 } }}
-                    >
+                    <HoverMotionDiv key={index} className={"cursor-pointer h-10 w-10 relative flex items-center justify-center bg-background"}>
                       <div
                         className={`rounded-full border-foreground border-2`}
                         style={{ backgroundColor: selectedColor || "hsl(var(--foreground))", width: size.cssValue, height: size.cssValue }}
                       ></div>
-                    </motion.div>
+                    </HoverMotionDiv>
                   );
                 })}
               </div>
             </PopoverContent>
           </Popover>
+          <motion.div whileHover={{ scale: 1.1 }}>
+            <Button variant="destructive" size={"icon"}>
+              <Trash2 />
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.1 }}>
+            <Toggle variant="outline" aria-label="Toggle italic" className="px-2" pressed={isErasing} onClick={() => setIsErasing(true)}>
+              <Eraser />
+            </Toggle>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.1 }}>
+            <Toggle variant="outline" aria-label="Toggle italic" className="px-2" pressed={!isErasing} onClick={() => setIsErasing(false)}>
+              <Pencil />
+            </Toggle>
+          </motion.div>
         </div>
       </div>
     </div>
