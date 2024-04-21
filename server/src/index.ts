@@ -3,7 +3,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
 import cors from "cors";
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "../../lib/types";
+import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color } from "../../lib/types";
 
 dotenv.config();
 
@@ -28,5 +28,8 @@ io.on("connection", (socket) => {
   });
   socket.on("disconnect", () => {
     console.log(`User Disconnected: ${socket.id}`);
+  });
+  socket.on("canvasChangeColor", (color: Color) => {
+    socket.broadcast.emit("canvasChangeColor", color);
   });
 });

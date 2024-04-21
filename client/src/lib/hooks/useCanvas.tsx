@@ -3,13 +3,15 @@ import type { Line, Point } from "../../../../lib";
 import _ from "lodash";
 import { CanvasUtils, getCanvasContext } from "../utils/canvas-utils";
 import { useSocketConnection } from "./useSocketConnection";
+import { Color } from "../types";
 
 type UseCanvasConfig = {
   isErasing: boolean;
+  drawColor: Color;
 };
 
 // hook for encapsulating canvas operations on the drawing canvas
-export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
+export const useDrawCanvas = ({ isErasing, drawColor }: UseCanvasConfig) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const { socket, isConnected } = useSocketConnection();
@@ -26,13 +28,13 @@ export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
       const context = getCanvasContext(canvas);
       if (context) {
         context.lineCap = "round";
-        context.strokeStyle = "black";
+        context.strokeStyle = drawColor;
         context.lineWidth = 5;
         // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
         context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
       }
     }
-  }, [isErasing]);
+  }, [isErasing, drawColor]);
 
   // watch for resize events, debounce the handler so it doesn't overfire
   useEffect(() => {
@@ -42,7 +44,7 @@ export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
         const context = canvas.getContext("2d");
         if (context) {
           context.lineCap = "round";
-          context.strokeStyle = "black";
+          context.strokeStyle = drawColor;
           context.lineWidth = 5;
           // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
           context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
@@ -51,13 +53,13 @@ export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
       if (canvas) {
         CanvasUtils.putImageData(canvas, canvasHistory[canvasHistory.length - 1]);
       }
-    }, 100);
+    }, 250);
 
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
     return () => window.removeEventListener("resize", resizeCanvas);
-  }, [isErasing, canvasHistory]);
+  }, [isErasing, canvasHistory, drawColor]);
 
   const onMouseDown = useCallback(
     (event: MouseEvent<HTMLCanvasElement>) => {
@@ -169,11 +171,15 @@ export const useReceiveCanvas = ({ isErasing }: UseCanvasConfig) => {
 
   useEffect(() => {
     if (isConnected && canvasRef.current) {
+      const canvas = canvasRef.current;
       socket.on("canvasMouseDown", (point: Point) => {
-        CanvasUtils.beginDrawLine(canvasRef.current!, point);
+        CanvasUtils.beginDrawLine(canvas, point);
       });
       socket.on("canvasMouseMove", (point: Point) => {
-        CanvasUtils.drawLine(canvasRef.current!, [point]);
+        CanvasUtils.drawLine(canvas, [point]);
+      });
+      socket.on("canvasChangeColor", (color: Color) => {
+        CanvasUtils.changeColor(canvas, color);
       });
     }
 

@@ -29,7 +29,7 @@ const ChatMessage = ({ message, index }) => {
   return (
     <div>
       <motion.div
-        initial={{ opacity: 0, scale: 1, y: 10, x: 10 }}
+        initial={{ opacity: 0, scale: 1, y: 5, x: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
         transition={{
           opacity: { duration: 0.1 },

@@ -5,8 +5,8 @@ import _ from "lodash";
 import { useDrawCanvas } from "@/lib/hooks/useCanvas";
 import { Button } from "../button";
 
-export const DrawCanvas = ({ width, height }) => {
-  const { canvasRef, onMouseDown, onMouseMove, onMouseUp, handleMouseLeave } = useDrawCanvas({ isErasing: false });
+export const DrawCanvas = ({ width, height, drawColor }) => {
+  const { canvasRef, onMouseDown, onMouseMove, onMouseUp, handleMouseLeave } = useDrawCanvas({ isErasing: false, drawColor });
 
   return (
     <canvas

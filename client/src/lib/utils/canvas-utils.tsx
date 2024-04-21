@@ -1,4 +1,5 @@
 import type { Line, Point } from "../../../../lib";
+import type { Color } from "../types";
 
 const canvasOptions: CanvasRenderingContext2DSettings = {
   willReadFrequently: true,
@@ -38,5 +39,9 @@ export class CanvasUtils {
   static putImageData(canvas: HTMLCanvasElement, imageData: ImageData) {
     const context = getCanvasContext(canvas);
     if (context && imageData instanceof ImageData) context.putImageData(imageData, 0, 0);
+  }
+  static changeColor(canvas: HTMLCanvasElement, color: Color) {
+    const context = getCanvasContext(canvas);
+    if (context) context.strokeStyle = color;
   }
 }

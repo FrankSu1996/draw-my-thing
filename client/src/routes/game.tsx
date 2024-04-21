@@ -17,11 +17,13 @@ export function Game() {
   }, [connect, disconnect]);
 
   return (
-    <div className="h-screen w-full px-32 py-10">
+    <div className="h-screen w-full px-32 pt-10 pb-20">
       <div className="flex flex-col h-full gap-2">
         <header className="sticky top-0 z-10 flex items-center justify-between bg-background shadow-md p-2 pt-0 rounded-lg">
-          <div className="flex items-center justify-center">
-            <h1 style={{ fontFamily: "doodly1", fontSize: "5.5rem" }}>Draw My Thing</h1>
+          <div className="flex flex-col md:flex-row items-center justify-center">
+            <h1 style={{ fontFamily: "doodly1", fontSize: "5.5rem" }} className="w-full md-w-1/2">
+              Draw My Thing
+            </h1>
             <img src="light/logo.png" className="pl-20" width={250} />
           </div>
         </header>

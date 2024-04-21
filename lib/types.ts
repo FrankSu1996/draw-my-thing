@@ -1,11 +1,28 @@
+export enum Color {
+  WHITE = "white",
+  BLACK = "black",
+  GRAY = "gray",
+  RED = "red",
+  ORANGE = "orange",
+  YELLOW = "yellow",
+  GREEN = "green",
+  BLUE = "blue",
+  PURPLE = "purple",
+  PINK = "pink",
+  BEIGE = "beige",
+  BROWN = "brown",
+}
+
 export interface ServerToClientEvents {
   canvasMouseMove: (point: Point) => void;
   canvasMouseDown: (point: Point) => void;
+  canvasChangeColor: (color: Color) => void;
 }
 
 export interface ClientToServerEvents {
   canvasMouseMove: (e: Point) => void;
   canvasMouseDown: (e: Point) => void;
+  canvasChangeColor: (color: Color) => void;
 }
 
 export interface InterServerEvents {
