@@ -88,4 +88,6 @@
     font-style: normal;
   }
 
-  
+  body {
+    box-sizing: border-box;
+  }

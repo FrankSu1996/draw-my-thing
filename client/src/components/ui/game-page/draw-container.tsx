@@ -15,6 +15,7 @@ import { Input } from "../input";
 import { Switch } from "../switch";
 import { Toggle } from "../toggle";
 import { HoverMotionDiv } from "../animations/hover-motion-div";
+import { CanvasToolbar } from "./canvas-toolbar";
 
 export const DrawContainer = () => {
   const [isDrawCanvas, setIsDrawCanvas] = useState(true);
@@ -53,66 +54,7 @@ export const DrawContainer = () => {
           <ReceiveCanvas width={size && size.width - 5} height={size && size.height - 5} drawColor={selectedColor} />
         )}
       </div>
-      <div className="relative overflow-auto rounded-lg border bg-background py-2">
-        <Label htmlFor="message" className="sr-only">
-          Message
-        </Label>
-        <div className="flex h-full overflow-hidden" onClick={handleClick}>
-          {Object.values(Color).map((color, index) => {
-            return (
-              <TooltipProvider key={index}>
-                <Tooltip delayDuration={150}>
-                  <TooltipTrigger>
-                    <HoverMotionDiv key={index} data-color={color} style={{ backgroundColor: color }} className={"h-9 w-9"} />
-                  </TooltipTrigger>
-                  <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1">
-                    <p>{color}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            );
-          })}
-          <Button onClick={() => setIsDrawCanvas(!isDrawCanvas)}>{`Switch to ${isDrawCanvas ? "receive" : "draw"} canvas`}</Button>
-          <Popover>
-            <PopoverTrigger asChild>
-              <motion.div whileHover={{ scale: 1.1 }}>
-                <Button variant="outline" size={"icon"}>
-                  <div className={`rounded-full border-foreground border-2 w-5 h-5 bg-foreground`}></div>
-                </Button>
-              </motion.div>
-            </PopoverTrigger>
-            <PopoverContent className="mb-4 bg-accent">
-              <div className="grid shadow-2xl rounded">
-                {Object.values(BrushSize).map((size, index) => {
-                  return (
-                    <HoverMotionDiv key={index} className={"cursor-pointer h-10 w-10 relative flex items-center justify-center bg-background"}>
-                      <div
-                        className={`rounded-full border-foreground border-2`}
-                        style={{ backgroundColor: selectedColor || "hsl(var(--foreground))", width: size.cssValue, height: size.cssValue }}
-                      ></div>
-                    </HoverMotionDiv>
-                  );
-                })}
-              </div>
-            </PopoverContent>
-          </Popover>
-          <motion.div whileHover={{ scale: 1.1 }}>
-            <Button variant="destructive" size={"icon"}>
-              <Trash2 />
-            </Button>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.1 }}>
-            <Toggle variant="outline" aria-label="Toggle italic" className="px-2" pressed={isErasing} onClick={() => setIsErasing(true)}>
-              <Eraser />
-            </Toggle>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.1 }}>
-            <Toggle variant="outline" aria-label="Toggle italic" className="px-2" pressed={!isErasing} onClick={() => setIsErasing(false)}>
-              <Pencil />
-            </Toggle>
-          </motion.div>
-        </div>
-      </div>
+      <CanvasToolbar />
     </div>
   );
 };

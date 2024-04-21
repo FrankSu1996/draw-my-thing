@@ -2,8 +2,6 @@ import { Chatbox } from "@/components/ui/game-page/chatbox";
 import { DrawContainer } from "@/components/ui/game-page/draw-container";
 import { GameBar } from "@/components/ui/game-page/game-bar";
 import { PlayerList } from "@/components/ui/game-page/player-list";
-import { Separator } from "@/components/ui/separator";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import { useEffect } from "react";
 
