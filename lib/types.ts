@@ -17,12 +17,14 @@ export interface ServerToClientEvents {
   canvasMouseMove: (point: Point) => void;
   canvasMouseDown: (point: Point) => void;
   canvasChangeColor: (color: Color) => void;
+  canvasChangeDrawMode: (isErasing: boolean) => void;
 }
 
 export interface ClientToServerEvents {
   canvasMouseMove: (e: Point) => void;
   canvasMouseDown: (e: Point) => void;
   canvasChangeColor: (color: Color) => void;
+  canvasChangeDrawMode: (isErasing: boolean) => void;
 }
 
 export interface InterServerEvents {

@@ -49,13 +49,21 @@ export const gameSlice = createSlice({
     setDrawColor: (state, action: PayloadAction<Color>) => {
       state.Canvas.drawColor = action.payload;
     },
+    setBrushSize: (state, action: PayloadAction<BrushSize>) => {
+      state.Canvas.brushSize = action.payload;
+    },
+    setIsErasing: (state, action: PayloadAction<boolean>) => {
+      state.Canvas.isErasing = action.payload;
+    },
   },
 });
 
-export const { setPlayerName, setDrawColor } = gameSlice.actions;
+export const { setPlayerName, setDrawColor, setBrushSize, setIsErasing } = gameSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectPlayerName = (state: RootState) => state.game.playerName;
 export const selectDrawColor = (state: RootState) => state.game.Canvas.drawColor;
+export const selectBrushSize = (state: RootState) => state.game.Canvas.brushSize;
+export const selectIsErasing = (state: RootState) => state.game.Canvas.isErasing;
 
 export default gameSlice.reducer;

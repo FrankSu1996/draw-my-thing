@@ -6,11 +6,8 @@ import { BrushSize } from "@/lib/config";
 import { useSize } from "@/lib/hooks/useSize";
 
 export const DrawCanvas = () => {
-  const [isErasing, setIsErasing] = useState(false);
-  const [brushSize, setBrushSize] = useState<BrushSize>("medium");
-  const { canvasRef, onMouseDown, onMouseMove, onMouseUp, handleMouseLeave, clearCanvas } = useDrawCanvas({ isErasing });
+  const { canvasRef, onMouseDown, onMouseMove, onMouseUp, handleMouseLeave, clearCanvas, undo, redo } = useDrawCanvas();
   const canvasParentRef = useRef<HTMLDivElement | null>(null);
-
   const size = useSize(canvasParentRef);
 
   return (
@@ -27,13 +24,7 @@ export const DrawCanvas = () => {
           height={size ? size.height - 5 : undefined}
         ></canvas>
       </div>
-      <CanvasToolbar
-        brushSize={brushSize}
-        onChangeBrushSize={(brushSize) => setBrushSize(brushSize)}
-        onChangeDrawMode={(isErasing) => setIsErasing(isErasing)}
-        isErasing={isErasing}
-        onClearCanvas={clearCanvas}
-      />
+      <CanvasToolbar onClearCanvas={clearCanvas} undo={undo} redo={redo} />
     </>
   );
 };

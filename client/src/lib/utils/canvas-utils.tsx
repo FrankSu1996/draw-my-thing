@@ -44,4 +44,8 @@ export class CanvasUtils {
     const context = getCanvasContext(canvas);
     if (context) context.strokeStyle = color;
   }
+  static changeDrawMode(canvas: HTMLCanvasElement, isErasing: boolean) {
+    const context = getCanvasContext(canvas);
+    if (context) context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
+  }
 }

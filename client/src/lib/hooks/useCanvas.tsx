@@ -5,14 +5,15 @@ import { CanvasUtils, getCanvasContext } from "../utils/canvas-utils";
 import { useSocketConnection } from "./useSocketConnection";
 import { Color } from "../config";
 import { useSelector } from "react-redux";
-import { selectDrawColor } from "@/redux/gameSlice";
+import { selectDrawColor, selectIsErasing } from "@/redux/gameSlice";
 
 type UseCanvasConfig = {
   isErasing: boolean;
 };
 
 // hook for encapsulating canvas operations on the drawing canvas
-export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
+export const useDrawCanvas = () => {
+  const isErasing = useSelector(selectIsErasing);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { socket, isConnected } = useSocketConnection();
   const drawColor = useSelector(selectDrawColor);
@@ -181,6 +182,9 @@ export const useReceiveCanvas = ({ isErasing }: UseCanvasConfig) => {
       });
       socket.on("canvasChangeColor", (color: Color) => {
         CanvasUtils.changeColor(canvas, color);
+      });
+      socket.on("canvasChangeDrawMode", (isErasing: boolean) => {
+        CanvasUtils.changeDrawMode(canvas, isErasing);
       });
     }
 

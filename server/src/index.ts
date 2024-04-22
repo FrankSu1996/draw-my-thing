@@ -32,4 +32,7 @@ io.on("connection", (socket) => {
   socket.on("canvasChangeColor", (color: Color) => {
     socket.broadcast.emit("canvasChangeColor", color);
   });
+  socket.on("canvasChangeDrawMode", (isErasing: boolean) => {
+    socket.broadcast.emit("canvasChangeDrawMode", isErasing);
+  });
 });
