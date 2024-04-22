@@ -5,14 +5,16 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug server",
-      "program": "${workspaceFolder}/server/src/index.ts",
-      "runtimeArgs": ["-r", "ts-node/register", "-r", "tsconfig-paths/register"],
-      "cwd": "${workspaceFolder}/server",
-      "request": "launch",
-      "skipFiles": ["<node_internals>/**"],
+      "name": "Debug server with nodemon",
       "type": "node",
-      "console": "integratedTerminal"
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/server/node_modules/.bin/nodemon",
+      "runtimeArgs": ["--exec", "node -r ts-node/register -r tsconfig-paths/register", "${workspaceFolder}/server/src/index.ts"],
+      "restart": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}/server"
     },
 
     {
