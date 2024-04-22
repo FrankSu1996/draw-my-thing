@@ -5,14 +5,16 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Program",
-      "program": "${workspaceFolder}/server/index.ts",
+      "name": "Debug server",
+      "program": "${workspaceFolder}/server/src/index.ts",
+      "runtimeArgs": ["-r", "ts-node/register", "-r", "tsconfig-paths/register"],
+      "cwd": "${workspaceFolder}/server",
       "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "type": "node",
-      "preLaunchTask": "tsc: build - tsconfig.json",
-      "outFiles": ["${workspaceFolder}/server/dist/**/*.js"]
+      "console": "integratedTerminal"
     },
+
     {
       "type": "chrome",
       "request": "launch",
