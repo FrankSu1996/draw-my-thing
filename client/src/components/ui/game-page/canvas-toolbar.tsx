@@ -45,7 +45,6 @@ const ColorPicker = () => {
 
 const BrushSizePicker = () => {
   const drawColor = useSelector(selectDrawColor);
-  console.log(drawColor);
   const dispatch = useDispatch();
   return (
     <TooltipProvider>
@@ -103,7 +102,7 @@ export const CanvasToolbar = ({ onClearCanvas, undo, redo }: ToolbarProps) => {
       <Label htmlFor="message" className="sr-only">
         Message
       </Label>
-      <div className="flex h-full overflow-hidden p-1">
+      <div className="flex h-full overflow-hidden p-1 flex-wrap">
         <ColorPicker />
         <BrushSizePicker />
         <TooltipProvider>

@@ -7,10 +7,6 @@ import { Color } from "../config";
 import { useSelector } from "react-redux";
 import { selectDrawColor, selectIsErasing } from "@/redux/gameSlice";
 
-type UseCanvasConfig = {
-  isErasing: boolean;
-};
-
 // hook for encapsulating canvas operations on the drawing canvas
 export const useDrawCanvas = () => {
   const isErasing = useSelector(selectIsErasing);
@@ -20,8 +16,8 @@ export const useDrawCanvas = () => {
 
   // state for drawing
   const [isDrawing, setIsDrawing] = useState(false);
-  const [canvasHistory, setCanvasHistory] = useState<ImageData[]>([]);
-  const [undoStack, setUndoStack] = useState<ImageData[]>([]);
+  const [undoStack, setUndoStack] = useState<string[]>([]);
+  const [canvasHistory, setCanvasHistory] = useState<string[]>([]);
 
   // configure canvas context and watch for change in isErasing
   useEffect(() => {
@@ -53,7 +49,7 @@ export const useDrawCanvas = () => {
         }
       }
       if (canvas) {
-        CanvasUtils.putImageData(canvas, canvasHistory[canvasHistory.length - 1]);
+        CanvasUtils.drawFromImageUrl(canvas, canvasHistory[canvasHistory.length - 1]);
       }
     }, 250);
 
@@ -80,8 +76,8 @@ export const useDrawCanvas = () => {
 
   const onMouseUp: MouseEventHandler<HTMLCanvasElement> = useCallback(() => {
     if (canvasRef.current) {
-      const imageData = CanvasUtils.getImageData(canvasRef.current);
-      if (imageData) setCanvasHistory((prev) => [...prev, imageData]);
+      const imageUrl = CanvasUtils.getImageUrl(canvasRef.current);
+      if (imageUrl) setCanvasHistory((prev) => [...prev, imageUrl]);
     }
     setIsDrawing(false);
   }, []);
@@ -109,6 +105,7 @@ export const useDrawCanvas = () => {
         setUndoStack((prev) => [...prev, canvasHistory[0]]);
         setCanvasHistory([]);
         CanvasUtils.clear(canvasRef.current);
+        socket.emit("canvasUndo", null);
         return;
       }
       // Set the new canvas history state to all but the last entry
@@ -117,16 +114,17 @@ export const useDrawCanvas = () => {
       setCanvasHistory(newCanvasHistory);
       setUndoStack((prev) => [...prev, undoStepImageData]);
 
-      // Clear the canvas
-      CanvasUtils.clear(canvasRef.current);
-
       // Get the second to last canvas image data (now the last after update)
       const lastSavedImageData = newCanvasHistory[newCanvasHistory.length - 1];
 
       // Put the image data on the canvas
-      CanvasUtils.putImageData(canvasRef.current, lastSavedImageData);
+      CanvasUtils.drawFromImageUrl(canvasRef.current, lastSavedImageData);
+      const imageDataString = JSON.stringify(lastSavedImageData);
+
+      // send socket message
+      socket.emit("canvasUndo", "jfkldsjflka");
     }
-  }, [canvasHistory]);
+  }, [canvasHistory, socket]);
 
   const redo = useCallback(() => {
     if (undoStack.length <= 0) return;
@@ -135,10 +133,8 @@ export const useDrawCanvas = () => {
     setUndoStack(undoStack.slice(0, -1));
     setCanvasHistory((prev) => [...prev, redoImageData]);
     if (canvasRef.current) {
-      // Clear the canvas
-      CanvasUtils.clear(canvasRef.current);
       // Put the image data on the canvas
-      CanvasUtils.putImageData(canvasRef.current, redoImageData);
+      CanvasUtils.drawFromImageUrl(canvasRef.current, redoImageData);
     }
   }, [undoStack]);
 
@@ -167,8 +163,9 @@ export const useDrawCanvas = () => {
   };
 };
 
-export const useReceiveCanvas = ({ isErasing }: UseCanvasConfig) => {
+export const useReceiveCanvas = () => {
   const { socket, isConnected } = useSocketConnection();
+  const [isErasing, setIsErasing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -185,7 +182,10 @@ export const useReceiveCanvas = ({ isErasing }: UseCanvasConfig) => {
       });
       socket.on("canvasChangeDrawMode", (isErasing: boolean) => {
         CanvasUtils.changeDrawMode(canvas, isErasing);
+        setIsErasing(isErasing);
       });
+      socket.on("canvasUndo", (imageData: string | null) => {});
+      socket.on("canvasRedo", (imageData: string) => {});
     }
 
     return () => {

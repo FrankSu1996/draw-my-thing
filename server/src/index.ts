@@ -35,4 +35,10 @@ io.on("connection", (socket) => {
   socket.on("canvasChangeDrawMode", (isErasing: boolean) => {
     socket.broadcast.emit("canvasChangeDrawMode", isErasing);
   });
+  socket.on("canvasUndo", (imageData: string | null) => {
+    socket.broadcast.emit("canvasUndo", imageData);
+  });
+  socket.on("canvasRedo", (imageData: string) => {
+    socket.broadcast.emit("canvasRedo", imageData);
+  });
 });

@@ -18,6 +18,9 @@ export interface ServerToClientEvents {
   canvasMouseDown: (point: Point) => void;
   canvasChangeColor: (color: Color) => void;
   canvasChangeDrawMode: (isErasing: boolean) => void;
+  canvasUndo: (imageData: string | null) => void;
+  canvasRedo: (imageData: string) => void;
+  canvasClear: () => void;
 }
 
 export interface ClientToServerEvents {
@@ -25,6 +28,9 @@ export interface ClientToServerEvents {
   canvasMouseDown: (e: Point) => void;
   canvasChangeColor: (color: Color) => void;
   canvasChangeDrawMode: (isErasing: boolean) => void;
+  canvasUndo: (imageData: string | null) => void;
+  canvasRedo: (imageData: string) => void;
+  canvasClear: () => void;
 }
 
 export interface InterServerEvents {

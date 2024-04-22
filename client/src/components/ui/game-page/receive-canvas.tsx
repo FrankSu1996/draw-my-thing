@@ -1,9 +1,10 @@
 import { useReceiveCanvas } from "@/lib/hooks/useCanvas";
+import { useCanvasCursor } from "@/lib/hooks/useCanvasCursor";
 import { useSize } from "@/lib/hooks/useSize";
 import { useRef } from "react";
 
 export const ReceiveCanvas = () => {
-  const { canvasRef } = useReceiveCanvas({ isErasing: false });
+  const { canvasRef } = useReceiveCanvas();
 
   const canvasParentRef = useRef<HTMLDivElement | null>(null);
 

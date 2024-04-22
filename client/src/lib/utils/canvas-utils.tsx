@@ -30,15 +30,19 @@ export class CanvasUtils {
     const context = getCanvasContext(canvas);
     if (context) context.clearRect(0, 0, canvas.width, canvas.height);
   }
-
-  static getImageData(canvas: HTMLCanvasElement): ImageData | undefined {
-    const context = getCanvasContext(canvas);
-    if (context) return context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+  static getImageUrl(canvas: HTMLCanvasElement) {
+    return canvas.toDataURL();
   }
-
-  static putImageData(canvas: HTMLCanvasElement, imageData: ImageData) {
-    const context = getCanvasContext(canvas);
-    if (context && imageData instanceof ImageData) context.putImageData(imageData, 0, 0);
+  static drawFromImageUrl(canvas: HTMLCanvasElement, imageUrl: string) {
+    const context = canvas.getContext("2d");
+    if (context) {
+      const image = new Image();
+      image.src = imageUrl;
+      image.onload = () => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0);
+      };
+    }
   }
   static changeColor(canvas: HTMLCanvasElement, color: Color) {
     const context = getCanvasContext(canvas);
