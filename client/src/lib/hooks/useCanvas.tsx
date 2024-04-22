@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type MouseEventHandler } from "react";
 import type { Line, Point } from "../../../../lib";
 import _ from "lodash";
-import { CanvasUtils, getCanvasContext } from "../utils/canvas-utils";
+import { CanvasUtils, getCanvasContext, getCanvasCursorRadius, getCanvasLineWidth } from "../utils/canvas-utils";
 import { useSocketConnection } from "./useSocketConnection";
 import { Color } from "../config";
-import { useSelector } from "react-redux";
-import { selectDrawColor, selectIsErasing } from "@/redux/gameSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectBrushSize, selectDrawColor, selectIsErasing, setBrushSize } from "@/redux/gameSlice";
 
 // hook for encapsulating canvas operations on the drawing canvas
 export const useDrawCanvas = () => {
@@ -13,13 +13,15 @@ export const useDrawCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { socket, isConnected } = useSocketConnection();
   const drawColor = useSelector(selectDrawColor);
+  const brushSize = useSelector(selectBrushSize);
+  const radius = getCanvasLineWidth(brushSize);
 
   // state for drawing
   const [isDrawing, setIsDrawing] = useState(false);
   const [undoStack, setUndoStack] = useState<string[]>([]);
   const [canvasHistory, setCanvasHistory] = useState<string[]>([]);
 
-  // configure canvas context and watch for change in isErasing
+  // configure canvas context every time properties change
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -27,12 +29,12 @@ export const useDrawCanvas = () => {
       if (context) {
         context.lineCap = "round";
         context.strokeStyle = drawColor;
-        context.lineWidth = 5;
+        context.lineWidth = radius;
         // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
         context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
       }
     }
-  }, [isErasing, drawColor]);
+  }, [isErasing, drawColor, radius]);
 
   // watch for resize events, debounce the handler so it doesn't overfire
   useEffect(() => {
@@ -43,7 +45,7 @@ export const useDrawCanvas = () => {
         if (context) {
           context.lineCap = "round";
           context.strokeStyle = drawColor;
-          context.lineWidth = 5;
+          context.lineWidth = radius;
           // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
           context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
         }
@@ -54,14 +56,15 @@ export const useDrawCanvas = () => {
     }, 250);
 
     window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
 
     return () => window.removeEventListener("resize", resizeCanvas);
-  }, [isErasing, canvasHistory, drawColor]);
+  }, [isErasing, canvasHistory, drawColor, radius]);
 
   const onMouseDown = useCallback(
     (event: MouseEvent<HTMLCanvasElement>) => {
       if (canvasRef.current) {
+        const context = getCanvasContext(canvasRef.current);
+        if (context && context.lineWidth !== radius) context.lineWidth = radius;
         setIsDrawing(true);
         const startPoint: Point = {
           x: event.nativeEvent.offsetX,
@@ -71,7 +74,7 @@ export const useDrawCanvas = () => {
         if (isConnected) socket.emit("canvasMouseDown", startPoint);
       }
     },
-    [isConnected, socket]
+    [isConnected, socket, radius]
   );
 
   const onMouseUp: MouseEventHandler<HTMLCanvasElement> = useCallback(() => {
@@ -119,24 +122,24 @@ export const useDrawCanvas = () => {
 
       // Put the image data on the canvas
       CanvasUtils.drawFromImageUrl(canvasRef.current, lastSavedImageData);
-      const imageDataString = JSON.stringify(lastSavedImageData);
 
       // send socket message
-      socket.emit("canvasUndo", "jfkldsjflka");
+      socket.emit("canvasUndo", lastSavedImageData);
     }
   }, [canvasHistory, socket]);
 
   const redo = useCallback(() => {
     if (undoStack.length <= 0) return;
 
-    const redoImageData = undoStack[undoStack.length - 1];
+    const redoImageDataUrl = undoStack[undoStack.length - 1];
     setUndoStack(undoStack.slice(0, -1));
-    setCanvasHistory((prev) => [...prev, redoImageData]);
+    setCanvasHistory((prev) => [...prev, redoImageDataUrl]);
     if (canvasRef.current) {
       // Put the image data on the canvas
-      CanvasUtils.drawFromImageUrl(canvasRef.current, redoImageData);
+      CanvasUtils.drawFromImageUrl(canvasRef.current, redoImageDataUrl);
+      socket.emit("canvasRedo", redoImageDataUrl);
     }
-  }, [undoStack]);
+  }, [undoStack, socket]);
 
   const handleMouseLeave = useCallback(() => {
     setIsDrawing(false);

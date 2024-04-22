@@ -1,12 +1,9 @@
 import type { Line, Point } from "../../../../lib";
-import type { Color } from "../config";
-
-const canvasOptions: CanvasRenderingContext2DSettings = {
-  willReadFrequently: true,
-};
+import type { BrushSize, Color } from "../config";
 
 export const getCanvasContext = (canvas: HTMLCanvasElement) => {
-  return canvas.getContext("2d", canvasOptions);
+  const context = canvas.getContext("2d");
+  return context;
 };
 
 export class CanvasUtils {
@@ -53,3 +50,47 @@ export class CanvasUtils {
     if (context) context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
   }
 }
+
+export const getCanvasCursorRadius = (brushSize: BrushSize) => {
+  let radius = 0;
+  switch (brushSize) {
+    case "small": {
+      radius = 2;
+      break;
+    }
+    case "medium":
+      radius = 4;
+      break;
+    case "large":
+      radius = 8;
+      break;
+    case "x-large":
+      radius = 14;
+      break;
+    default:
+      break;
+  }
+  return radius;
+};
+
+export const getCanvasLineWidth = (brushSize: BrushSize) => {
+  let radius = 0;
+  switch (brushSize) {
+    case "small": {
+      radius = 2;
+      break;
+    }
+    case "medium":
+      radius = 5;
+      break;
+    case "large":
+      radius = 12;
+      break;
+    case "x-large":
+      radius = 18;
+      break;
+    default:
+      break;
+  }
+  return radius;
+};

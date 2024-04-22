@@ -30,6 +30,7 @@ const ColorPicker = () => {
               className={"h-9 w-9"}
               onClick={() => {
                 dispatch(setDrawColor(color));
+                dispatch(setIsErasing(false));
                 socket.emit("canvasChangeColor", color);
               }}
             />
@@ -99,100 +100,101 @@ export const CanvasToolbar = ({ onClearCanvas, undo, redo }: ToolbarProps) => {
 
   return (
     <div className="relative overflow-auto rounded-lg border bg-background">
-      <Label htmlFor="message" className="sr-only">
-        Message
-      </Label>
-      <div className="flex h-full overflow-hidden p-1 flex-wrap">
-        <ColorPicker />
-        <BrushSizePicker />
-        <TooltipProvider>
-          <Tooltip delayDuration={150}>
-            <TooltipTrigger>
-              <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }} onClick={onClearCanvas}>
-                <Button variant="destructive" size={"icon"}>
-                  <Trash2 />
-                </Button>
-              </motion.div>
-            </TooltipTrigger>
-            <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-              <p>Clear Canvas</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip delayDuration={150}>
-            <TooltipTrigger>
-              <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }}>
-                <Toggle
-                  variant="outline"
-                  aria-label="Toggle italic"
-                  className={cn("px-2", !isErasing && "border-2 border-solid border-foreground")}
-                  pressed={!isErasing}
-                  onClick={() => {
-                    dispatch(setIsErasing(false));
-                    socket.emit("canvasChangeDrawMode", false);
-                  }}
-                >
-                  <Pencil />
-                </Toggle>
-              </motion.div>
-            </TooltipTrigger>
-            <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-              <p>Draw</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip delayDuration={150}>
-            <TooltipTrigger>
-              <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }}>
-                <Toggle
-                  variant="outline"
-                  aria-label="Toggle italic"
-                  className={cn("px-2", isErasing && "border-2 border-solid border-foreground")}
-                  pressed={isErasing}
-                  onClick={() => {
-                    dispatch(setIsErasing(true));
-                    socket.emit("canvasChangeDrawMode", true);
-                  }}
-                >
-                  <Eraser />
-                </Toggle>
-              </motion.div>
-            </TooltipTrigger>
-            <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-              <p>Erase</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip delayDuration={150}>
-            <TooltipTrigger>
-              <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }} onClick={undo}>
-                <Button variant="secondary" size={"icon"}>
-                  <Undo2 />
-                </Button>
-              </motion.div>
-            </TooltipTrigger>
-            <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-              <p>Undo</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip delayDuration={150}>
-            <TooltipTrigger>
-              <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }} onClick={redo}>
-                <Button variant="secondary" size={"icon"}>
-                  <Redo2 />
-                </Button>
-              </motion.div>
-            </TooltipTrigger>
-            <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-              <p>Redo</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+      <div className="flex h-full overflow-hidden p-1 flex-wrap gap-20">
+        <div>
+          <ColorPicker />
+        </div>
+        <div>
+          <BrushSizePicker />
+          <TooltipProvider>
+            <Tooltip delayDuration={150}>
+              <TooltipTrigger>
+                <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }} onClick={onClearCanvas}>
+                  <Button variant="destructive" size={"icon"}>
+                    <Trash2 />
+                  </Button>
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
+                <p>Clear Canvas</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip delayDuration={150}>
+              <TooltipTrigger>
+                <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }}>
+                  <Toggle
+                    variant="outline"
+                    aria-label="Toggle italic"
+                    className={cn("px-2", !isErasing && "border-2 border-solid border-foreground")}
+                    pressed={!isErasing}
+                    onClick={() => {
+                      dispatch(setIsErasing(false));
+                      socket.emit("canvasChangeDrawMode", false);
+                    }}
+                  >
+                    <Pencil />
+                  </Toggle>
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
+                <p>Draw</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip delayDuration={150}>
+              <TooltipTrigger>
+                <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }}>
+                  <Toggle
+                    variant="outline"
+                    aria-label="Toggle italic"
+                    className={cn("px-2", isErasing && "border-2 border-solid border-foreground")}
+                    pressed={isErasing}
+                    onClick={() => {
+                      dispatch(setIsErasing(true));
+                      socket.emit("canvasChangeDrawMode", true);
+                    }}
+                  >
+                    <Eraser />
+                  </Toggle>
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
+                <p>Erase</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip delayDuration={150}>
+              <TooltipTrigger>
+                <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }} onClick={undo}>
+                  <Button variant="secondary" size={"icon"}>
+                    <Undo2 />
+                  </Button>
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
+                <p>Undo</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip delayDuration={150}>
+              <TooltipTrigger>
+                <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }} onClick={redo}>
+                  <Button variant="secondary" size={"icon"}>
+                    <Redo2 />
+                  </Button>
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
+                <p>Redo</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
     </div>
   );

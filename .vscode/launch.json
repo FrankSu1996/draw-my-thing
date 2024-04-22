@@ -20,7 +20,7 @@
     {
       "type": "chrome",
       "request": "launch",
-      "name": "Launch Chrome against localhost",
+      "name": "Debug client",
       "url": "http://localhost:3000",
       "webRoot": "${workspaceFolder}/client",
       "preLaunchTask": "Start Client"
