@@ -4,7 +4,6 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useDispatch, useSelector } from "react-redux";
 import { selectPlayerName, setPlayerName } from "@/redux/gameSlice";
 

@@ -8,94 +8,108 @@ import { Color } from "@/lib/config";
 import { HoverMotionDiv } from "../animations/hover-motion-div";
 import { Button } from "../button";
 import { Toggle } from "../toggle";
-import { useState, type MouseEventHandler } from "react";
-import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import { cn } from "@/lib/utils/utils";
 import { Close } from "@radix-ui/react-popover";
+import { FC } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { selectDrawColor, setDrawColor } from "@/redux/gameSlice";
+import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 
-type ToolbarProps = {
-  onChangeColor: (color: Color) => void;
-};
-
-export const CanvasToolbar = ({ onChangeColor }: ToolbarProps) => {
-  const [selectedColor, setSelectedColor] = useState<Color | null>(null);
-  const [isErasing, setIsErasing] = useState(false);
+const ColorPicker = () => {
+  const dispatch = useDispatch();
   const { socket } = useSocketConnection();
 
-  const handleClick: MouseEventHandler = (event) => {
-    // Find the closest ancestor element that has a 'data-color' attribute
-    const element = event.target;
-    if (element instanceof HTMLElement) {
-      const colorElement = element.closest("[data-color]");
-      if (colorElement) {
-        // Retrieve the color from the 'data-color' attribute
-        const color = colorElement.getAttribute("data-color") as Color;
-        if (color) onChangeColor(color);
-      }
-    }
-  };
+  return Object.values(Color).map((color, index) => {
+    return (
+      <TooltipProvider key={index}>
+        <Tooltip delayDuration={150}>
+          <TooltipTrigger>
+            <HoverMotionDiv
+              key={index}
+              style={{ backgroundColor: color }}
+              className={"h-9 w-9"}
+              onClick={() => {
+                dispatch(setDrawColor(color));
+                socket.emit("canvasChangeColor", color);
+              }}
+            />
+          </TooltipTrigger>
+          <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
+            <p>{color}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  });
+};
 
+type BrushSizePickerProps = {
+  brushSize: BrushSize;
+  onChangeBrushSize: (brushSize: BrushSize) => void;
+};
+const BrushSizePicker: FC<BrushSizePickerProps> = ({ onChangeBrushSize }) => {
+  const drawColor = useSelector(selectDrawColor);
+  return (
+    <TooltipProvider>
+      <Tooltip delayDuration={150}>
+        <TooltipTrigger>
+          <Popover>
+            <PopoverTrigger asChild>
+              <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }}>
+                <Button variant="outline" size={"icon"}>
+                  <div
+                    className={`rounded-full border-foreground border-2 w-5 h-5`}
+                    style={{ backgroundColor: drawColor || "hsl(var(--foreground))" }}
+                  ></div>
+                </Button>
+              </motion.div>
+            </PopoverTrigger>
+            <PopoverContent className="bg-accent w-full p-0">
+              <div className="grid shadow-2xl rounded">
+                {Object.entries(BrushSize).map(([key, entry], index) => {
+                  return (
+                    <Close onClick={() => onChangeBrushSize(key as BrushSize)} key={index}>
+                      <HoverMotionDiv key={index} className={"cursor-pointer h-10 w-10 relative flex items-center justify-center bg-background"}>
+                        <div
+                          className={`rounded-full border-foreground border-2`}
+                          style={{ backgroundColor: drawColor || "hsl(var(--foreground))", width: entry.cssValue, height: entry.cssValue }}
+                        ></div>
+                      </HoverMotionDiv>
+                    </Close>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </TooltipTrigger>
+        <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
+          <p>Select Brush Size</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+type ToolbarProps = {
+  isErasing: boolean;
+  onChangeDrawMode: (isErasing: boolean) => void;
+  brushSize: BrushSize;
+  onChangeBrushSize: (brushSize: BrushSize) => void;
+  onClearCanvas: () => void;
+};
+export const CanvasToolbar = ({ isErasing, onChangeDrawMode, brushSize, onChangeBrushSize, onClearCanvas }: ToolbarProps) => {
   return (
     <div className="relative overflow-auto rounded-lg border bg-background">
       <Label htmlFor="message" className="sr-only">
         Message
       </Label>
-      <div className="flex h-full overflow-hidden p-1" onClick={handleClick}>
-        {Object.values(Color).map((color, index) => {
-          return (
-            <TooltipProvider key={index}>
-              <Tooltip delayDuration={150}>
-                <TooltipTrigger>
-                  <HoverMotionDiv key={index} data-color={color} style={{ backgroundColor: color }} className={"h-9 w-9"} />
-                </TooltipTrigger>
-                <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-                  <p>{color}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          );
-        })}
+      <div className="flex h-full overflow-hidden p-1">
+        <ColorPicker />
+        <BrushSizePicker onChangeBrushSize={onChangeBrushSize} brushSize={brushSize} />
         <TooltipProvider>
           <Tooltip delayDuration={150}>
             <TooltipTrigger>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }}>
-                    <Button variant="outline" size={"icon"}>
-                      <div
-                        className={`rounded-full border-foreground border-2 w-5 h-5`}
-                        style={{ backgroundColor: selectedColor || "hsl(var(--foreground))" }}
-                      ></div>
-                    </Button>
-                  </motion.div>
-                </PopoverTrigger>
-                <PopoverContent className="bg-accent w-full p-0">
-                  <div className="grid shadow-2xl rounded">
-                    {Object.values(BrushSize).map((size, index) => {
-                      return (
-                        <Close>
-                          <HoverMotionDiv key={index} className={"cursor-pointer h-10 w-10 relative flex items-center justify-center bg-background"}>
-                            <div
-                              className={`rounded-full border-foreground border-2`}
-                              style={{ backgroundColor: selectedColor || "hsl(var(--foreground))", width: size.cssValue, height: size.cssValue }}
-                            ></div>
-                          </HoverMotionDiv>
-                        </Close>
-                      );
-                    })}
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </TooltipTrigger>
-            <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-              <p>Select Brush Size</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip delayDuration={150}>
-            <TooltipTrigger>
-              <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }}>
+              <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }} onClick={onClearCanvas}>
                 <Button variant="destructive" size={"icon"}>
                   <Trash2 />
                 </Button>
@@ -113,16 +127,16 @@ export const CanvasToolbar = ({ onChangeColor }: ToolbarProps) => {
                 <Toggle
                   variant="outline"
                   aria-label="Toggle italic"
-                  className={cn("px-2", isErasing && "border-2 border-solid border-foreground")}
-                  pressed={isErasing}
-                  onClick={() => setIsErasing(true)}
+                  className={cn("px-2", !isErasing && "border-2 border-solid border-foreground")}
+                  pressed={!isErasing}
+                  onClick={() => onChangeDrawMode(false)}
                 >
-                  <Eraser />
+                  <Pencil />
                 </Toggle>
               </motion.div>
             </TooltipTrigger>
             <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-              <p>Erase</p>
+              <p>Draw</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -133,16 +147,16 @@ export const CanvasToolbar = ({ onChangeColor }: ToolbarProps) => {
                 <Toggle
                   variant="outline"
                   aria-label="Toggle italic"
-                  className={cn("px-2", !isErasing && "border-2 border-solid border-foreground")}
-                  pressed={!isErasing}
-                  onClick={() => setIsErasing(false)}
+                  className={cn("px-2", isErasing && "border-2 border-solid border-foreground")}
+                  pressed={isErasing}
+                  onClick={() => onChangeDrawMode(true)}
                 >
-                  <Pencil />
+                  <Eraser />
                 </Toggle>
               </motion.div>
             </TooltipTrigger>
             <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-              <p>Draw</p>
+              <p>Erase</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

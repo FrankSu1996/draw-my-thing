@@ -1,7 +1,6 @@
-import { CanvasToolbar } from "@/components/ui/game-page/canvas-toolbar";
+import { Button } from "@/components/ui/button";
 import { Chatbox } from "@/components/ui/game-page/chatbox";
 import { DrawCanvas } from "@/components/ui/game-page/draw-canvas";
-import { DrawContainer } from "@/components/ui/game-page/draw-container";
 import { GameBar } from "@/components/ui/game-page/game-bar";
 import { PlayerList } from "@/components/ui/game-page/player-list";
 import { ReceiveCanvas } from "@/components/ui/game-page/receive-canvas";
@@ -33,16 +32,10 @@ export function Game() {
         <GameBar />
         <main className="flex overflow-auto flex-1 gap-3">
           <Chatbox />
-          <div className="relative flex flex-col rounded-xl w-3/5 gap-2">
-            {isDrawCanvas ? (
-              <DrawCanvas width={50} height={50} drawColor={Color.BLACK} />
-            ) : (
-              <ReceiveCanvas width={50} height={50} drawColor={Color.BLACK} />
-            )}
-          </div>
-
+          <div className="relative flex flex-col rounded-xl w-3/5 gap-2">{isDrawCanvas ? <DrawCanvas /> : <ReceiveCanvas />}</div>
           <PlayerList />
         </main>
+        <Button onClick={() => setIsDrawCanvas(!isDrawCanvas)}>{`Switch to ${isDrawCanvas ? "receive" : "draw"} canvas`}</Button>
       </div>
     </div>
   );

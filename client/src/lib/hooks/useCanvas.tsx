@@ -4,17 +4,18 @@ import _ from "lodash";
 import { CanvasUtils, getCanvasContext } from "../utils/canvas-utils";
 import { useSocketConnection } from "./useSocketConnection";
 import { Color } from "../config";
+import { useSelector } from "react-redux";
+import { selectDrawColor } from "@/redux/gameSlice";
 
 type UseCanvasConfig = {
   isErasing: boolean;
-  drawColor: Color;
 };
 
 // hook for encapsulating canvas operations on the drawing canvas
-export const useDrawCanvas = ({ isErasing, drawColor }: UseCanvasConfig) => {
+export const useDrawCanvas = ({ isErasing }: UseCanvasConfig) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
   const { socket, isConnected } = useSocketConnection();
+  const drawColor = useSelector(selectDrawColor);
 
   // state for drawing
   const [isDrawing, setIsDrawing] = useState(false);
@@ -27,8 +28,6 @@ export const useDrawCanvas = ({ isErasing, drawColor }: UseCanvasConfig) => {
     if (canvas) {
       const context = getCanvasContext(canvas);
       if (context) {
-        context.canvas.height = 50;
-        context.canvas.width = 50;
         context.lineCap = "round";
         context.strokeStyle = drawColor;
         context.lineWidth = 5;

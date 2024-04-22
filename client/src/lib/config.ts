@@ -13,7 +13,14 @@ export enum Color {
   BROWN = "brown",
 }
 
-export const BrushSize = {
+export type BrushSizeOption = {
+  canvasValue: number;
+  cssValue: string;
+};
+
+export type BrushSize = "small" | "medium" | "large" | "x-large";
+
+export const BrushSize: Record<BrushSize, BrushSizeOption> = {
   small: {
     canvasValue: 2,
     cssValue: "5px",
@@ -26,7 +33,7 @@ export const BrushSize = {
     canvasValue: 8,
     cssValue: "18px",
   },
-  veryLarge: {
+  "x-large": {
     canvasValue: 16,
     cssValue: "25px",
   },
