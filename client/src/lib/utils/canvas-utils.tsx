@@ -6,6 +6,12 @@ export const getCanvasContext = (canvas: HTMLCanvasElement) => {
   return context;
 };
 
+export type CanvasConfig = {
+  isErasing: boolean;
+  drawColor: Color;
+  lineWidth: number;
+};
+
 export class CanvasUtils {
   static beginDrawLine(canvas: HTMLCanvasElement, startPoint: Point) {
     const context = getCanvasContext(canvas);
@@ -31,7 +37,6 @@ export class CanvasUtils {
     return canvas.toDataURL();
   }
   static drawFromImageUrl(canvas: HTMLCanvasElement, imageUrl: string) {
-    console.log(imageUrl);
     const context = canvas.getContext("2d");
     if (context) {
       const image = new Image();
@@ -57,6 +62,17 @@ export class CanvasUtils {
     if (context) {
       const radius = getCanvasLineWidth(brushSize);
       context.lineWidth = radius;
+    }
+  }
+
+  static configureCanvas(canvas: HTMLCanvasElement, config: CanvasConfig) {
+    const context = getCanvasContext(canvas);
+    if (context) {
+      const { drawColor, isErasing, lineWidth } = config;
+      context.lineWidth = lineWidth;
+      if (isErasing) {
+        context.strokeStyle = "rgba(241, 245, 249)";
+      } else context.strokeStyle = drawColor;
     }
   }
 }

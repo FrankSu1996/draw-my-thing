@@ -1,11 +1,7 @@
-import { useRef, useState } from "react";
-import _ from "lodash";
+import { useRef } from "react";
 import { useDrawCanvas } from "@/lib/hooks/useCanvas";
 import { CanvasToolbar } from "./canvas-toolbar";
-import { BrushSize } from "@/lib/config";
 import { useSize } from "@/lib/hooks/useSize";
-import { useSelector } from "react-redux";
-import { selectBrushSize, selectDrawColor } from "@/redux/gameSlice";
 import { useCanvasCursor } from "@/lib/hooks/useCanvasCursor";
 
 export const DrawCanvas = () => {

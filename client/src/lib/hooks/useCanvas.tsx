@@ -15,7 +15,7 @@ export const useDrawCanvas = () => {
   const { socket, isConnected } = useSocketConnection();
   const drawColor = useSelector(selectDrawColor);
   const brushSize = useSelector(selectBrushSize);
-  const radius = getCanvasLineWidth(brushSize);
+  const lineWidth = getCanvasLineWidth(brushSize);
 
   // state for drawing
   const [isDrawing, setIsDrawing] = useState(false);
@@ -26,29 +26,17 @@ export const useDrawCanvas = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
-      const context = getCanvasContext(canvas);
-      if (context) {
-        context.lineCap = "round";
-        if (isErasing) {
-          context.strokeStyle = "rgba(241, 245, 249)";
-        } else context.strokeStyle = drawColor;
-        context.lineWidth = radius;
-      }
+      CanvasUtils.configureCanvas(canvas, { isErasing, drawColor, lineWidth });
     }
-  }, [isErasing, drawColor, radius]);
+  }, [isErasing, drawColor, lineWidth]);
 
   // watch for resize events, debounce the handler so it doesn't overfire
   useEffect(() => {
     const resizeCanvas = _.debounce(() => {
       const canvas = canvasRef.current;
       if (canvas && canvas.parentElement) {
-        const context = canvas.getContext("2d");
-        if (context) {
-          context.lineCap = "round";
-          if (isErasing) {
-            context.strokeStyle = "rgba(241, 245, 249)";
-          } else context.strokeStyle = drawColor;
-          context.lineWidth = radius;
+        if (canvas) {
+          CanvasUtils.configureCanvas(canvas, { isErasing, drawColor, lineWidth });
         }
       }
       if (canvas) {
@@ -59,13 +47,13 @@ export const useDrawCanvas = () => {
     window.addEventListener("resize", resizeCanvas);
 
     return () => window.removeEventListener("resize", resizeCanvas);
-  }, [isErasing, canvasHistory, drawColor, radius]);
+  }, [isErasing, canvasHistory, drawColor, lineWidth]);
 
   const onMouseDown = useCallback(
     (event: MouseEvent<HTMLCanvasElement>) => {
       if (canvasRef.current) {
         const context = getCanvasContext(canvasRef.current);
-        if (context && context.lineWidth !== radius) context.lineWidth = radius;
+        if (context && context.lineWidth !== lineWidth) context.lineWidth = lineWidth;
         setIsDrawing(true);
         const startPoint: Point = {
           x: event.nativeEvent.offsetX,
@@ -75,7 +63,7 @@ export const useDrawCanvas = () => {
         if (isConnected) socket.emit("canvasMouseDown", startPoint);
       }
     },
-    [isConnected, socket, radius]
+    [isConnected, socket, lineWidth]
   );
 
   const onMouseUp: MouseEventHandler<HTMLCanvasElement> = useCallback(() => {
