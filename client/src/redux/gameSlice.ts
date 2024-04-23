@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
 import type { TCharacter } from "../../../lib";
-import { Color, type BrushSize } from "@/lib/config";
+import { type BrushSize } from "@/lib/config";
+import { Color } from "@/lib/config";
 
 type Player = {
   name: string;

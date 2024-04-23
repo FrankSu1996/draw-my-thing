@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type MouseEventHandler } from "react";
-import type { Line, Point } from "../../../../lib";
+import type { Point } from "../../../../lib";
 import _ from "lodash";
 import { CanvasUtils, getCanvasContext, getCanvasCursorRadius, getCanvasLineWidth } from "../utils/canvas-utils";
 import { useSocketConnection } from "./useSocketConnection";
-import { Color } from "../config";
-import { useDispatch, useSelector } from "react-redux";
+import { type Color } from "../../../../lib";
+import { useSelector } from "react-redux";
 import { selectBrushSize, selectDrawColor, selectIsErasing, setBrushSize } from "@/redux/gameSlice";
+import type { BrushSize } from "../config";
 
 // hook for encapsulating canvas operations on the drawing canvas
 export const useDrawCanvas = () => {
@@ -20,6 +21,7 @@ export const useDrawCanvas = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [undoStack, setUndoStack] = useState<string[]>([]);
   const [canvasHistory, setCanvasHistory] = useState<string[]>([]);
+  console.log(canvasHistory);
 
   // configure canvas context every time properties change
   useEffect(() => {
@@ -170,6 +172,8 @@ export const useReceiveCanvas = () => {
   const { socket, isConnected } = useSocketConnection();
   const [isErasing, setIsErasing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [brushSize, setBrushSize] = useState<BrushSize>("medium");
+  const radius = getCanvasLineWidth(brushSize);
 
   useEffect(() => {
     if (isConnected && canvasRef.current) {
@@ -178,7 +182,11 @@ export const useReceiveCanvas = () => {
         CanvasUtils.beginDrawLine(canvas, point);
       });
       socket.on("canvasMouseMove", (point: Point) => {
-        CanvasUtils.drawLine(canvas, [point]);
+        if (canvasRef.current) {
+          const context = getCanvasContext(canvasRef.current);
+          if (context && context.lineWidth !== radius) context.lineWidth = radius;
+          CanvasUtils.drawLine(canvas, [point]);
+        }
       });
       socket.on("canvasChangeColor", (color: Color) => {
         CanvasUtils.changeColor(canvas, color);
@@ -187,15 +195,27 @@ export const useReceiveCanvas = () => {
         CanvasUtils.changeDrawMode(canvas, isErasing);
         setIsErasing(isErasing);
       });
-      socket.on("canvasUndo", (imageData: string | null) => {});
-      socket.on("canvasRedo", (imageData: string) => {});
+      socket.on("canvasUndo", (imageDataUrl: string | null) => {
+        if (imageDataUrl) CanvasUtils.drawFromImageUrl(canvas, imageDataUrl);
+        else CanvasUtils.clear(canvas);
+      });
+      socket.on("canvasRedo", (imageDataUrl: string) => {
+        CanvasUtils.drawFromImageUrl(canvas, imageDataUrl);
+      });
+      socket.on("canvasChangeBrushSize", (brushSize: BrushSize) => {
+        setBrushSize(brushSize);
+        CanvasUtils.changeBrushSize(canvas, brushSize);
+      });
+      socket.on("canvasClear", () => {
+        CanvasUtils.clear(canvas);
+      });
     }
 
     return () => {
       socket.off("canvasMouseDown");
       socket.off("canvasMouseMove");
     };
-  }, [isConnected, socket]);
+  }, [isConnected, socket, radius]);
 
   // configure canvas context and watch for change in isErasing
   useEffect(() => {
@@ -205,7 +225,6 @@ export const useReceiveCanvas = () => {
       if (context) {
         context.lineCap = "round";
         context.strokeStyle = "black";
-        context.lineWidth = 5;
         context;
         // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
         context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
@@ -222,7 +241,6 @@ export const useReceiveCanvas = () => {
         if (context) {
           context.lineCap = "round";
           context.strokeStyle = "black";
-          context.lineWidth = 5;
           // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
           context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
         }

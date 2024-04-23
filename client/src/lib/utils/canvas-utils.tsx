@@ -49,6 +49,13 @@ export class CanvasUtils {
     const context = getCanvasContext(canvas);
     if (context) context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
   }
+  static changeBrushSize(canvas: HTMLCanvasElement, brushSize: BrushSize) {
+    const context = getCanvasContext(canvas);
+    if (context) {
+      const radius = getCanvasLineWidth(brushSize);
+      context.lineWidth = radius;
+    }
+  }
 }
 
 export const getCanvasCursorRadius = (brushSize: BrushSize) => {

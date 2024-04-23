@@ -1,5 +1,4 @@
 import { BrushSize } from "@/lib/config";
-import { Label } from "@radix-ui/react-label";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
@@ -10,7 +9,6 @@ import { Button } from "../button";
 import { Toggle } from "../toggle";
 import { cn } from "@/lib/utils/utils";
 import { Close } from "@radix-ui/react-popover";
-import { FC } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectDrawColor, selectIsErasing, setBrushSize, setDrawColor, setIsErasing } from "@/redux/gameSlice";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
@@ -47,6 +45,7 @@ const ColorPicker = () => {
 const BrushSizePicker = () => {
   const drawColor = useSelector(selectDrawColor);
   const dispatch = useDispatch();
+  const { socket } = useSocketConnection();
   return (
     <TooltipProvider>
       <Tooltip delayDuration={150}>
@@ -66,7 +65,14 @@ const BrushSizePicker = () => {
               <div className="grid shadow-2xl rounded">
                 {Object.entries(BrushSize).map(([key, entry], index) => {
                   return (
-                    <Close onClick={() => dispatch(setBrushSize(key as BrushSize))} key={index}>
+                    <Close
+                      onClick={() => {
+                        const brushSize = key as BrushSize;
+                        dispatch(setBrushSize(brushSize));
+                        socket.emit("canvasChangeBrushSize", brushSize);
+                      }}
+                      key={index}
+                    >
                       <HoverMotionDiv key={index} className={"cursor-pointer h-10 w-10 relative flex items-center justify-center bg-background"}>
                         <div
                           className={`rounded-full border-foreground border-2`}
@@ -109,7 +115,13 @@ export const CanvasToolbar = ({ onClearCanvas, undo, redo }: ToolbarProps) => {
           <TooltipProvider>
             <Tooltip delayDuration={150}>
               <TooltipTrigger>
-                <motion.div whileHover={{ scale: 1.1, zIndex: 9999 }} onClick={onClearCanvas}>
+                <motion.div
+                  whileHover={{ scale: 1.1, zIndex: 9999 }}
+                  onClick={() => {
+                    onClearCanvas();
+                    socket.emit("canvasClear");
+                  }}
+                >
                   <Button variant="destructive" size={"icon"}>
                     <Trash2 />
                   </Button>

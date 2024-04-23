@@ -13,6 +13,8 @@ export enum Color {
   BROWN = "brown",
 }
 
+export type BrushSize = "small" | "medium" | "large" | "x-large";
+
 export interface ServerToClientEvents {
   canvasMouseMove: (point: Point) => void;
   canvasMouseDown: (point: Point) => void;
@@ -21,6 +23,7 @@ export interface ServerToClientEvents {
   canvasUndo: (imageData: string | null) => void;
   canvasRedo: (imageData: string) => void;
   canvasClear: () => void;
+  canvasChangeBrushSize: (brushSize: BrushSize) => void;
 }
 
 export interface ClientToServerEvents {
@@ -31,6 +34,7 @@ export interface ClientToServerEvents {
   canvasUndo: (imageData: string | null) => void;
   canvasRedo: (imageData: string) => void;
   canvasClear: () => void;
+  canvasChangeBrushSize: (brushSize: BrushSize) => void;
 }
 
 export interface InterServerEvents {

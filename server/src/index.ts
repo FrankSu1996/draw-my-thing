@@ -3,7 +3,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
 import cors from "cors";
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color } from "../../lib/types";
+import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize } from "../../lib/types";
 
 dotenv.config();
 
@@ -40,5 +40,11 @@ io.on("connection", (socket) => {
   });
   socket.on("canvasRedo", (imageData: string) => {
     socket.broadcast.emit("canvasRedo", imageData);
+  });
+  socket.on("canvasChangeBrushSize", (brushSize: BrushSize) => {
+    socket.broadcast.emit("canvasChangeBrushSize", brushSize);
+  });
+  socket.on("canvasClear", () => {
+    socket.broadcast.emit("canvasClear");
   });
 });

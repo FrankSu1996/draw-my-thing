@@ -39,7 +39,7 @@ const ChatMessage = ({ message, index }) => {
             duration: 1,
           },
         }}
-        className={cn("p-2 last:border-none text-sm break-words", index % 2 !== 0 || "bg-muted")}
+        className={cn("p-[3px] last:border-none text-sm break-words", index % 2 !== 0 || "bg-muted")}
       >
         <b>{`${playerName}: `}</b>
         {message}
