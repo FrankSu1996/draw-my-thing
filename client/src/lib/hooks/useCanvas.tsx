@@ -3,9 +3,9 @@ import type { Point } from "../../../../lib";
 import _ from "lodash";
 import { CanvasUtils, getCanvasContext, getCanvasCursorRadius, getCanvasLineWidth } from "../utils/canvas-utils";
 import { useSocketConnection } from "./useSocketConnection";
-import { type Color } from "../../../../lib";
+import { Color } from "@/lib/config";
 import { useSelector } from "react-redux";
-import { selectBrushSize, selectDrawColor, selectIsErasing, setBrushSize } from "@/redux/gameSlice";
+import { selectBrushSize, selectDrawColor, selectIsErasing } from "@/redux/gameSlice";
 import type { BrushSize } from "../config";
 
 // hook for encapsulating canvas operations on the drawing canvas
@@ -21,7 +21,6 @@ export const useDrawCanvas = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [undoStack, setUndoStack] = useState<string[]>([]);
   const [canvasHistory, setCanvasHistory] = useState<string[]>([]);
-  console.log(canvasHistory);
 
   // configure canvas context every time properties change
   useEffect(() => {
@@ -30,10 +29,10 @@ export const useDrawCanvas = () => {
       const context = getCanvasContext(canvas);
       if (context) {
         context.lineCap = "round";
-        context.strokeStyle = drawColor;
+        if (isErasing) {
+          context.strokeStyle = "rgba(241, 245, 249)";
+        } else context.strokeStyle = drawColor;
         context.lineWidth = radius;
-        // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
-        context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
       }
     }
   }, [isErasing, drawColor, radius]);
@@ -46,10 +45,10 @@ export const useDrawCanvas = () => {
         const context = canvas.getContext("2d");
         if (context) {
           context.lineCap = "round";
-          context.strokeStyle = drawColor;
+          if (isErasing) {
+            context.strokeStyle = "rgba(241, 245, 249)";
+          } else context.strokeStyle = drawColor;
           context.lineWidth = radius;
-          // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
-          context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
         }
       }
       if (canvas) {
@@ -171,8 +170,9 @@ export const useDrawCanvas = () => {
 export const useReceiveCanvas = () => {
   const { socket, isConnected } = useSocketConnection();
   const [isErasing, setIsErasing] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [brushSize, setBrushSize] = useState<BrushSize>("medium");
+  const [drawColor, setDrawColor] = useState<Color>(Color.BLACK);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const radius = getCanvasLineWidth(brushSize);
 
   useEffect(() => {
@@ -190,6 +190,7 @@ export const useReceiveCanvas = () => {
       });
       socket.on("canvasChangeColor", (color: Color) => {
         CanvasUtils.changeColor(canvas, color);
+        setDrawColor(color);
       });
       socket.on("canvasChangeDrawMode", (isErasing: boolean) => {
         CanvasUtils.changeDrawMode(canvas, isErasing);
@@ -217,21 +218,6 @@ export const useReceiveCanvas = () => {
     };
   }, [isConnected, socket, radius]);
 
-  // configure canvas context and watch for change in isErasing
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const context = getCanvasContext(canvas);
-      if (context) {
-        context.lineCap = "round";
-        context.strokeStyle = "black";
-        context;
-        // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
-        context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
-      }
-    }
-  }, [isErasing]);
-
   // watch for resize events, debounce the handler so it doesn't overfire
   useEffect(() => {
     const resizeCanvas = _.debounce(() => {
@@ -240,18 +226,16 @@ export const useReceiveCanvas = () => {
         const context = canvas.getContext("2d");
         if (context) {
           context.lineCap = "round";
-          context.strokeStyle = "black";
-          // Set the stroke style and globalCompositeOperation based on whether erasing or drawing
-          context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
+          if (isErasing) {
+            context.strokeStyle = "rgba(241, 245, 249)";
+          } else context.strokeStyle = drawColor;
+          context.lineWidth = radius;
         }
       }
-    }, 100);
-
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+    }, 250);
 
     return () => window.removeEventListener("resize", resizeCanvas);
-  }, [isErasing]);
+  }, [isErasing, drawColor, radius]);
 
   return {
     canvasRef,

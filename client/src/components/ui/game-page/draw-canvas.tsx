@@ -24,7 +24,7 @@ export const DrawCanvas = () => {
           onMouseMove={onMouseMove}
           onMouseUp={onMouseUp}
           onMouseLeave={handleMouseLeave}
-          className="bg-muted/50 rounded-lg h-full min-h-64"
+          className="bg-muted rounded-lg h-full min-h-64"
           width={size ? size.width - 5 : undefined}
           height={size ? size.height - 5 : undefined}
         ></canvas>

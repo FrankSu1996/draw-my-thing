@@ -31,6 +31,7 @@ export class CanvasUtils {
     return canvas.toDataURL();
   }
   static drawFromImageUrl(canvas: HTMLCanvasElement, imageUrl: string) {
+    console.log(imageUrl);
     const context = canvas.getContext("2d");
     if (context) {
       const image = new Image();
@@ -47,7 +48,9 @@ export class CanvasUtils {
   }
   static changeDrawMode(canvas: HTMLCanvasElement, isErasing: boolean) {
     const context = getCanvasContext(canvas);
-    if (context) context.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
+    if (context && isErasing) {
+      context.strokeStyle = "rgba(241, 245, 249)";
+    }
   }
   static changeBrushSize(canvas: HTMLCanvasElement, brushSize: BrushSize) {
     const context = getCanvasContext(canvas);

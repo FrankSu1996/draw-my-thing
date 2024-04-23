@@ -14,7 +14,7 @@ export const ReceiveCanvas = () => {
     <div className="flex-1" ref={canvasParentRef}>
       <canvas
         ref={canvasRef}
-        className="bg-muted/50 rounded-lg h-full"
+        className="bg-muted rounded-lg h-full"
         width={size ? size.width - 5 : undefined}
         height={size ? size.height - 5 : undefined}
       ></canvas>
