@@ -7,21 +7,7 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useSelector } from "react-redux";
 import { selectPlayerName } from "@/redux/gameSlice";
-import type { ScrollAreaElement } from "@radix-ui/react-scroll-area";
 import { Separator } from "../separator";
-
-const messageVariant = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 10,
-    },
-  },
-};
 
 const ChatMessage = ({ message, index }) => {
   const playerName = useSelector(selectPlayerName);

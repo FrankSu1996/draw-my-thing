@@ -9,12 +9,16 @@ type Player = {
   name: string;
   character: TCharacter;
 };
+type Message = {
+  playerName: string;
+  message: string;
+};
 
 // Define a type for the slice state
 interface GameState {
   playerName: string;
   players: Player[];
-  chatMessages: string[];
+  chatMessages: Message[];
   Canvas: {
     drawColor: Color;
     brushSize: BrushSize;
@@ -56,15 +60,19 @@ export const gameSlice = createSlice({
     setIsErasing: (state, action: PayloadAction<boolean>) => {
       state.Canvas.isErasing = action.payload;
     },
+    addMessage: (state, action: PayloadAction<Message>) => {
+      state.chatMessages.push(action.payload);
+    },
   },
 });
 
-export const { setPlayerName, setDrawColor, setBrushSize, setIsErasing } = gameSlice.actions;
+export const { setPlayerName, setDrawColor, setBrushSize, setIsErasing, addMessage } = gameSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectPlayerName = (state: RootState) => state.game.playerName;
 export const selectDrawColor = (state: RootState) => state.game.Canvas.drawColor;
 export const selectBrushSize = (state: RootState) => state.game.Canvas.brushSize;
 export const selectIsErasing = (state: RootState) => state.game.Canvas.isErasing;
+export const selectChatMessage = (state: RootState) => state.game.chatMessages;
 
 export default gameSlice.reducer;
