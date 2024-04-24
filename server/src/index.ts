@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 import cors from "cors";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize } from "../../lib/types";
+import { RedisClient } from "./redis";
 
 dotenv.config();
 
@@ -50,4 +51,7 @@ io.on("connection", (socket) => {
   socket.on("canvasMouseUp", () => {
     socket.broadcast.emit("canvasMouseUp");
   });
+  socket.on("createRoom", () => {
+    
+  })
 });

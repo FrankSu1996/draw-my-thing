@@ -28,6 +28,7 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
+  // canvas related events
   canvasMouseMove: (e: Point) => void;
   canvasMouseDown: (e: Point) => void;
   canvasMouseUp: () => void;
@@ -37,6 +38,9 @@ export interface ClientToServerEvents {
   canvasRedo: (imageData: string) => void;
   canvasClear: () => void;
   canvasChangeBrushSize: (brushSize: BrushSize) => void;
+
+  // room related events
+  createRoom: () => void;
 }
 
 export interface InterServerEvents {

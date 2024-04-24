@@ -7,6 +7,7 @@ import { Root } from "./routes/root.tsx";
 import { Game } from "./routes/game.tsx";
 import { Provider } from "react-redux";
 import { store } from "./redux/store.ts";
+import { CreateGame } from "./routes/create-game.tsx";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: "/game",
     element: <Game />,
+  },
+  {
+    path: "/create-game",
+    element: <CreateGame />,
   },
 ]);
 

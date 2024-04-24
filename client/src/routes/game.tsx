@@ -1,10 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Chatbox } from "@/components/ui/game-page/chatbox";
 import { DrawCanvas } from "@/components/ui/game-page/draw-canvas";
-import { GameBar } from "@/components/ui/game-page/game-bar";
 import { PlayerList } from "@/components/ui/game-page/player-list";
 import { ReceiveCanvas } from "@/components/ui/game-page/receive-canvas";
-import { Color } from "@/lib/config";
+import { GameLayout } from "@/components/ui/layout/game-layout";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import { useEffect, useState } from "react";
 
@@ -19,24 +17,10 @@ export function Game() {
   }, [connect, disconnect]);
 
   return (
-    <div className="h-screen w-full px-32 pt-10 pb-20">
-      <div className="flex flex-col h-full gap-2">
-        <header className="sticky top-0 z-10 flex items-center justify-between bg-background shadow-md p-2 pt-0 rounded-lg">
-          <div className="flex flex-col md:flex-row items-center justify-center">
-            <h1 style={{ fontFamily: "doodly1", fontSize: "5.5rem" }} className="w-full md-w-1/2">
-              Draw My Thing
-            </h1>
-            <img src="light/logo.png" className="pl-20" width={250} />
-          </div>
-        </header>
-        <GameBar />
-        <main className="flex flex-1 gap-3 overflow-hidden">
-          <Chatbox />
-          <div className="relative flex flex-col rounded-xl w-3/5 gap-2">{isDrawCanvas ? <DrawCanvas /> : <ReceiveCanvas />}</div>
-          <PlayerList />
-        </main>
-        <Button onClick={() => setIsDrawCanvas(!isDrawCanvas)}>{`Switch to ${isDrawCanvas ? "receive" : "draw"} canvas`}</Button>
-      </div>
-    </div>
+    <GameLayout>
+      <Chatbox />
+      <div className="relative flex flex-col rounded-xl w-3/5 gap-2">{isDrawCanvas ? <DrawCanvas /> : <ReceiveCanvas />}</div>
+      <PlayerList />
+    </GameLayout>
   );
 }

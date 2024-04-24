@@ -56,7 +56,7 @@ export function Root() {
                 <Button type="submit" className="w-full h-14 text-xl">
                   Play Online
                 </Button>
-                <Button variant="outline" className="w-full h-12 text-lg" onClick={() => navigate("/game")}>
+                <Button variant="outline" className="w-full h-12 text-lg" onClick={() => navigate("/create-game")}>
                   Create Private Room
                 </Button>
               </div>
