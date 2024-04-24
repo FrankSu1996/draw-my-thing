@@ -43,7 +43,7 @@ export class CanvasUtils {
       image.src = imageUrl;
       image.onload = () => {
         context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(image, 0, 0);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
       };
     }
   }

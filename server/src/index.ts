@@ -47,4 +47,7 @@ io.on("connection", (socket) => {
   socket.on("canvasClear", () => {
     socket.broadcast.emit("canvasClear");
   });
+  socket.on("canvasMouseUp", () => {
+    socket.broadcast.emit("canvasMouseUp");
+  });
 });

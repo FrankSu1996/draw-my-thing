@@ -30,7 +30,7 @@ export function Game() {
           </div>
         </header>
         <GameBar />
-        <main className="flex overflow-auto flex-1 gap-3">
+        <main className="flex flex-1 gap-3 overflow-hidden">
           <Chatbox />
           <div className="relative flex flex-col rounded-xl w-3/5 gap-2">{isDrawCanvas ? <DrawCanvas /> : <ReceiveCanvas />}</div>
           <PlayerList />

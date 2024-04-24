@@ -106,7 +106,7 @@ export const CanvasToolbar = ({ onClearCanvas, undo, redo }: ToolbarProps) => {
 
   return (
     <div className="relative overflow-auto rounded-lg border bg-background">
-      <div className="flex h-full overflow-hidden p-1 flex-wrap gap-20">
+      <div className="flex h-full overflow-hidden p-1 flex-wrap justify-between">
         <div>
           <ColorPicker />
         </div>

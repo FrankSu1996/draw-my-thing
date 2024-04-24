@@ -42,7 +42,7 @@ export const useDrawCanvas = () => {
       if (canvas) {
         CanvasUtils.drawFromImageUrl(canvas, canvasHistory[canvasHistory.length - 1]);
       }
-    }, 250);
+    }, 200);
 
     window.addEventListener("resize", resizeCanvas);
 
@@ -72,7 +72,8 @@ export const useDrawCanvas = () => {
       if (imageUrl) setCanvasHistory((prev) => [...prev, imageUrl]);
     }
     setIsDrawing(false);
-  }, []);
+    socket.emit("canvasMouseUp");
+  }, [socket]);
 
   const onMouseMove = useCallback(
     (event: MouseEvent<HTMLCanvasElement>) => {
@@ -161,7 +162,9 @@ export const useReceiveCanvas = () => {
   const [brushSize, setBrushSize] = useState<BrushSize>("medium");
   const [drawColor, setDrawColor] = useState<Color>(Color.BLACK);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const radius = getCanvasLineWidth(brushSize);
+  const lineWidth = getCanvasLineWidth(brushSize);
+  // state for drawing. so we can save the draw state for redrawing on resize
+  const [canvasHistory, setCanvasHistory] = useState<string[]>([]);
 
   useEffect(() => {
     if (isConnected && canvasRef.current) {
@@ -172,7 +175,7 @@ export const useReceiveCanvas = () => {
       socket.on("canvasMouseMove", (point: Point) => {
         if (canvasRef.current) {
           const context = getCanvasContext(canvasRef.current);
-          if (context && context.lineWidth !== radius) context.lineWidth = radius;
+          if (context && context.lineWidth !== lineWidth) context.lineWidth = lineWidth;
           CanvasUtils.drawLine(canvas, [point]);
         }
       });
@@ -198,32 +201,38 @@ export const useReceiveCanvas = () => {
       socket.on("canvasClear", () => {
         CanvasUtils.clear(canvas);
       });
+      socket.on("canvasMouseUp", () => {
+        if (canvasRef.current) {
+          const imageUrl = CanvasUtils.getImageUrl(canvasRef.current);
+          if (imageUrl) setCanvasHistory((prev) => [...prev, imageUrl]);
+        }
+      });
     }
 
     return () => {
       socket.off("canvasMouseDown");
       socket.off("canvasMouseMove");
     };
-  }, [isConnected, socket, radius]);
+  }, [isConnected, socket, lineWidth]);
 
   // watch for resize events, debounce the handler so it doesn't overfire
   useEffect(() => {
     const resizeCanvas = _.debounce(() => {
       const canvas = canvasRef.current;
       if (canvas && canvas.parentElement) {
-        const context = canvas.getContext("2d");
-        if (context) {
-          context.lineCap = "round";
-          if (isErasing) {
-            context.strokeStyle = "rgba(241, 245, 249)";
-          } else context.strokeStyle = drawColor;
-          context.lineWidth = radius;
+        if (canvas) {
+          CanvasUtils.configureCanvas(canvas, { isErasing, drawColor, lineWidth });
         }
       }
-    }, 250);
+      if (canvas) {
+        CanvasUtils.drawFromImageUrl(canvas, canvasHistory[canvasHistory.length - 1]);
+      }
+    }, 200);
+
+    window.addEventListener("resize", resizeCanvas);
 
     return () => window.removeEventListener("resize", resizeCanvas);
-  }, [isErasing, drawColor, radius]);
+  }, [isErasing, canvasHistory, drawColor, lineWidth]);
 
   return {
     canvasRef,

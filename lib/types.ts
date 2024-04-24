@@ -18,6 +18,7 @@ export type BrushSize = "small" | "medium" | "large" | "x-large";
 export interface ServerToClientEvents {
   canvasMouseMove: (point: Point) => void;
   canvasMouseDown: (point: Point) => void;
+  canvasMouseUp: () => void;
   canvasChangeColor: (color: Color) => void;
   canvasChangeDrawMode: (isErasing: boolean) => void;
   canvasUndo: (imageData: string | null) => void;
@@ -29,6 +30,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   canvasMouseMove: (e: Point) => void;
   canvasMouseDown: (e: Point) => void;
+  canvasMouseUp: () => void;
   canvasChangeColor: (color: Color) => void;
   canvasChangeDrawMode: (isErasing: boolean) => void;
   canvasUndo: (imageData: string | null) => void;
