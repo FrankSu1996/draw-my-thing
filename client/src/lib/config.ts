@@ -38,3 +38,5 @@ export const BrushSize: Record<BrushSize, BrushSizeOption> = {
     cssValue: "25px",
   },
 };
+
+export const MAX_PLAYERS = 20;

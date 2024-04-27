@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 import cors from "cors";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize } from "../../lib/types";
+import Redis from "ioredis";
+import { RedisClient } from "./redis";
 
 dotenv.config();
 

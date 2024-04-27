@@ -10,7 +10,6 @@ import { useDispatch, useSelector } from "react-redux";
 export function CreateGame() {
   const dispatch = useDispatch();
   const playerName = useSelector(selectPlayerName);
-  //const redis = useRedis();
 
   const { socket, connect } = useSocketConnection();
 

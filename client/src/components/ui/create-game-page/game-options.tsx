@@ -1,10 +1,15 @@
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, type UseControllerProps, useController, type Control } from "react-hook-form";
 import { Button } from "../button";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { randomString } from "@/lib/utils/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../tooltip";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type ComponentType, type FC, type ReactElement } from "react";
+import { AlarmClock, UserRound } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useSize } from "@/lib/hooks/useSize";
+import { MAX_PLAYERS } from "@/lib/config";
+import { ScrollArea } from "../scroll-area";
 
 type Options = {
   numPlayers: number;
@@ -15,36 +20,98 @@ type Options = {
   hints: number;
 };
 
+type DropdownProps = UseControllerProps<Options> & {
+  selected: string;
+  items: string[];
+};
+
+// this dropdown has it's dropdown elements dynamically resize to the selected item's container
+function GameOptionDropdown(props: DropdownProps) {
+  const triggerElRef = useRef<HTMLButtonElement>(null);
+  const size = useSize(triggerElRef);
+  const { field } = useController(props);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="border rounded-lg flex-1 flex" ref={triggerElRef}>
+        <b className="p-1 pl-3">{props.selected}</b>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent style={{ width: `${parseInt(size?.width)}px` }}>
+        <ScrollArea className="h-72 rounded-md">
+          {props.items.map((item, idx) => {
+            return (
+              <>
+                <DropdownMenuItem key={idx} onClick={() => field.onChange(item)}>
+                  {item}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            );
+          })}
+        </ScrollArea>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+type GameOptionRowProps = {
+  label: string;
+  dropdown: ReactElement;
+  avatar: ReactElement;
+};
+const GameOptionRow: FC<GameOptionRowProps> = ({ avatar, dropdown, label }) => {
+  return (
+    <div className="flex align-center justify-between">
+      <div className="flex gap-4 flex-1">
+        {avatar}
+        <b>{label}</b>
+      </div>
+      {dropdown}
+    </div>
+  );
+};
+const PlayersOptionRow = ({ control }) => {
+  const avatar = <UserRound size={30} />;
+  const items = Array.from({ length: MAX_PLAYERS })
+    .map((_, idx) => (idx + 1).toString())
+    .slice(1);
+  const dropdown = <GameOptionDropdown selected="3" items={items} name="numPlayers" control={control} />;
+  return <GameOptionRow avatar={avatar} dropdown={dropdown} label="Players" />;
+};
+const DrawTimeOptionRow = ({ control }) => {
+  const avatar = <AlarmClock size={30} />;
+  const dropdown = <GameOptionDropdown selected="3" items={["1", "2", "3"]} name="drawTime" control={control} />;
+  return <GameOptionRow avatar={avatar} dropdown={dropdown} label="Drawtime" />;
+};
+
 export const GameOptions = () => {
   const {
-    register,
     handleSubmit,
+    control,
     watch,
     formState: { errors },
-  } = useForm<Options>();
+  } = useForm<Options>({
+    defaultValues: {
+      numPlayers: 6,
+      drawTime: 80,
+      rounds: 4,
+      wordMode: "normal",
+      wordCount: 3,
+      hints: 2,
+    },
+  });
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  console.log(watch());
   const gameUrl = `${window.location.host}?roomId=${randomString(7)}`;
 
   const onSubmit: SubmitHandler<Options> = (data) => {
     console.log(data);
   };
 
-  useEffect(() => {
-    const handleResizes = () => {
-      console.log(buttonRef.current?.clientWidth);
-      console.log(buttonRef.current?.clientHeight);
-    };
-
-    window.addEventListener("resize", handleResizes);
-
-    return () => window.removeEventListener("resize", handleResizes);
-  }, []);
-
   return (
-    <form className="relative flex flex-col rounded-xl w-3/5 gap-2 justify-between" onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <div>Players</div>
-        <div>Drawtime</div>
+    <form className="relative flex flex-col rounded-xl w-3/5 gap-2 justify-between border" onSubmit={handleSubmit(onSubmit)}>
+      <div className="flex flex-col gap-4 p-16">
+        <PlayersOptionRow control={control} />
         <div>Rounds</div>
         <div>Word Mode</div>
         <div>Word count</div>
