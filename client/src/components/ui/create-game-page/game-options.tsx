@@ -1,56 +1,68 @@
 import { useForm, SubmitHandler, type UseControllerProps, useController, type Control } from "react-hook-form";
 import { Button } from "../button";
 import { motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
-import { randomString } from "@/lib/utils/utils";
+import { cn, randomString } from "@/lib/utils/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../tooltip";
-import { useEffect, useRef, useState, type ComponentType, type FC, type ReactElement } from "react";
-import { AlarmClock, UserRound } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useRef, useState, type FC, type ReactElement } from "react";
+import { AlarmClock, ChevronDown, Dices, Tally5, UserRound, WrapText } from "lucide-react";
 import { useSize } from "@/lib/hooks/useSize";
-import { MAX_PLAYERS } from "@/lib/config";
+import { DRAW_TIMES, MAX_HINTS, MAX_PLAYERS, MAX_ROUNDS, MAX_WORD_COUNT } from "@/lib/config";
 import { ScrollArea } from "../scroll-area";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../select";
+import { QuestionMarkIcon } from "@radix-ui/react-icons";
+
+type WordMode = "normal" | "hidden" | "combination";
 
 type Options = {
   numPlayers: number;
   drawTime: number;
   rounds: number;
-  wordMode: "normal" | "hidden" | "combination";
+  wordMode: WordMode;
   wordCount: number;
   hints: number;
 };
 
-type DropdownProps = UseControllerProps<Options> & {
-  selected: string;
+type SelectProps = UseControllerProps<Options> & {
   items: string[];
 };
 
 // this dropdown has it's dropdown elements dynamically resize to the selected item's container
-function GameOptionDropdown(props: DropdownProps) {
+function GameOptionSelect(props: SelectProps) {
   const triggerElRef = useRef<HTMLButtonElement>(null);
   const size = useSize(triggerElRef);
   const { field } = useController(props);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="border rounded-lg flex-1 flex" ref={triggerElRef}>
-        <b className="p-1 pl-3">{props.selected}</b>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent style={{ width: `${parseInt(size?.width)}px` }}>
-        <ScrollArea className="h-72 rounded-md">
-          {props.items.map((item, idx) => {
-            return (
-              <>
-                <DropdownMenuItem key={idx} onClick={() => field.onChange(item)}>
+    <Select
+      onValueChange={(value) => field.onChange(props.name === "wordMode" ? value : parseInt(value))}
+      defaultValue={field.value.toString()}
+      open={isOpen}
+      onOpenChange={(open) => setIsOpen(open)}
+    >
+      <SelectTrigger
+        className={cn(
+          "p-1 pl-3 border rounded-lg flex-1 flex items-center justify-between",
+          isOpen ? "game-option-select--open" : "game-option-select"
+        )}
+        ref={triggerElRef}
+      >
+        <b>{field.value}</b>
+      </SelectTrigger>
+      <SelectContent style={{ width: `${size?.width + 16}px` }}>
+        <ScrollArea className="max-h-72 rounded-md">
+          <SelectGroup>
+            {props.items.map((item, idx) => {
+              return (
+                <SelectItem key={idx} value={item}>
                   {item}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </>
-            );
-          })}
+                </SelectItem>
+              );
+            })}
+          </SelectGroup>
         </ScrollArea>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -61,8 +73,8 @@ type GameOptionRowProps = {
 };
 const GameOptionRow: FC<GameOptionRowProps> = ({ avatar, dropdown, label }) => {
   return (
-    <div className="flex align-center justify-between">
-      <div className="flex gap-4 flex-1">
+    <div className="flex justify-between items-center">
+      <div className="flex gap-4 flex-1 items-center">
         {avatar}
         <b>{label}</b>
       </div>
@@ -70,18 +82,47 @@ const GameOptionRow: FC<GameOptionRowProps> = ({ avatar, dropdown, label }) => {
     </div>
   );
 };
+
+// define components for each game option row
 const PlayersOptionRow = ({ control }) => {
   const avatar = <UserRound size={30} />;
   const items = Array.from({ length: MAX_PLAYERS })
     .map((_, idx) => (idx + 1).toString())
     .slice(1);
-  const dropdown = <GameOptionDropdown selected="3" items={items} name="numPlayers" control={control} />;
+  const dropdown = <GameOptionSelect items={items} name="numPlayers" control={control} />;
   return <GameOptionRow avatar={avatar} dropdown={dropdown} label="Players" />;
 };
 const DrawTimeOptionRow = ({ control }) => {
   const avatar = <AlarmClock size={30} />;
-  const dropdown = <GameOptionDropdown selected="3" items={["1", "2", "3"]} name="drawTime" control={control} />;
+  const items = DRAW_TIMES.map((time) => time.toString());
+  const dropdown = <GameOptionSelect items={items} name="drawTime" control={control} />;
   return <GameOptionRow avatar={avatar} dropdown={dropdown} label="Drawtime" />;
+};
+const RoundsOptionRow = ({ control }) => {
+  const avatar = <Dices size={30} />;
+  const items = Array.from({ length: MAX_ROUNDS })
+    .map((_, index) => (index + 1).toString())
+    .slice(1);
+  const dropdown = <GameOptionSelect items={items} name="rounds" control={control} />;
+  return <GameOptionRow avatar={avatar} dropdown={dropdown} label="Rounds" />;
+};
+const WordModeOptionsRow = ({ control }) => {
+  const avatar = <WrapText size={30} />;
+  const items: WordMode[] = ["normal", "combination", "hidden"];
+  const dropdown = <GameOptionSelect items={items} name="wordMode" control={control} />;
+  return <GameOptionRow avatar={avatar} dropdown={dropdown} label="Word Mode" />;
+};
+const WordCountOptionsRow = ({ control }) => {
+  const avatar = <Tally5 size={30} />;
+  const items = Array.from({ length: MAX_WORD_COUNT }).map((_, idx) => (idx + 1).toString());
+  const dropdown = <GameOptionSelect items={items} name="wordCount" control={control} />;
+  return <GameOptionRow avatar={avatar} dropdown={dropdown} label="Word Count" />;
+};
+const HintsOptionsRow = ({ control }) => {
+  const avatar = <QuestionMarkIcon width={30} height={30} />;
+  const items = Array.from({ length: MAX_HINTS + 1 }).map((_, idx) => idx.toString());
+  const dropdown = <GameOptionSelect items={items} name="hints" control={control} />;
+  return <GameOptionRow avatar={avatar} dropdown={dropdown} label="Hints" />;
 };
 
 export const GameOptions = () => {
@@ -93,7 +134,7 @@ export const GameOptions = () => {
   } = useForm<Options>({
     defaultValues: {
       numPlayers: 6,
-      drawTime: 80,
+      drawTime: 75,
       rounds: 4,
       wordMode: "normal",
       wordCount: 3,
@@ -101,21 +142,22 @@ export const GameOptions = () => {
     },
   });
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  console.log(watch());
   const gameUrl = `${window.location.host}?roomId=${randomString(7)}`;
+  console.log(watch());
 
   const onSubmit: SubmitHandler<Options> = (data) => {
     console.log(data);
   };
 
   return (
-    <form className="relative flex flex-col rounded-xl w-3/5 gap-2 justify-between border" onSubmit={handleSubmit(onSubmit)}>
+    <form className="relative flex flex-col rounded-xl w-3/5 gap-2 justify-between border overflow-auto" onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-col gap-4 p-16">
         <PlayersOptionRow control={control} />
-        <div>Rounds</div>
-        <div>Word Mode</div>
-        <div>Word count</div>
-        <div>Hints</div>
+        <DrawTimeOptionRow control={control} />
+        <RoundsOptionRow control={control} />
+        <WordModeOptionsRow control={control} />
+        <WordCountOptionsRow control={control} />
+        <HintsOptionsRow control={control} />
       </div>
       <div className="flex gap-4 p-4 flex-wrap">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }} className="flex-1">

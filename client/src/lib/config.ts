@@ -40,3 +40,7 @@ export const BrushSize: Record<BrushSize, BrushSizeOption> = {
 };
 
 export const MAX_PLAYERS = 20;
+export const DRAW_TIMES = [15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180];
+export const MAX_ROUNDS = 10;
+export const MAX_WORD_COUNT = 5;
+export const MAX_HINTS = 5;
