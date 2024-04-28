@@ -13,15 +13,15 @@ export function Root() {
   const dispatch = useDispatch();
 
   return (
-    <div className="w-full place-items-center mt-8">
-      <div className="flex items-center justify-center flex-col gap-5">
-        <div className="flex flex-col place-content-center place-items-center">
+    <div className="w-full place-items-center flex justify-center items-center h-screen">
+      <div className="flex items-center justify-center flex-col">
+        <div className="flex items-center justify-center gap-10">
           <img src="light/logo-text.png" alt="" className="max-w-[500px]" />
-          <img src="light/logo.png" alt="" width={150} height={100} />
+          <img src="light/logo.png" alt="" width={150} height={100} className="pb-10" />
         </div>
         <Card className="py-4 px-10">
-          <CardContent>
-            <div className="mx-auto grid w-[350px] gap-6">
+          <CardContent className="">
+            <div className="grid w-[350px] gap-6">
               <div className="grid gap-2 text-center">
                 <h1 className="text-3xl font-bold">Pick your character</h1>
               </div>

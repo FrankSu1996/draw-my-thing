@@ -62,7 +62,7 @@ export const Chatbox = () => {
   }, [messages]);
 
   return (
-    <div className="flex-1 flex flex-col rounded-md justify-between gap-5 p-2 max-w-[20%] border">
+    <div className="flex-1 flex flex-col rounded-md justify-between gap-5 p-2 max-w-[20%] border-2">
       <ScrollArea className="relative">
         {messages.map((currentMessage, index) => {
           return <ChatMessage index={index} message={currentMessage} key={index} />;
