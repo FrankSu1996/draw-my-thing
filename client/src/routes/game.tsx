@@ -9,12 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 export function Game() {
-  const { connect, disconnect } = useSocketConnection();
   const { socket } = useSocketConnection();
   const dispatch = useDispatch();
-  const currentPlayer = useSelector(selectCurrentPlayer);
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     socket.on("playerJoined", (player) => {
@@ -31,18 +27,6 @@ export function Game() {
       socket.off("playerLeft");
     };
   }, [socket, dispatch]);
-
-  useEffect(() => {
-    connect();
-
-    return () => {
-      disconnect();
-    };
-  }, [connect, disconnect]);
-
-  useEffect(() => {
-    if (!currentPlayer) navigate({ pathname: "/", search: searchParams.toString() });
-  }, [currentPlayer, navigate, searchParams]);
 
   return (
     <GameLayout>

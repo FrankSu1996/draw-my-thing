@@ -6,16 +6,11 @@ import { createBrowserRouter, RouterProvider, useLocation } from "react-router-d
 import { Root } from "./routes/root.tsx";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import { store } from "./redux/store.ts";
-import { Game } from "./routes/game.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
-  },
-  {
-    path: "/game",
-    element: <Game />,
   },
 ]);
 
