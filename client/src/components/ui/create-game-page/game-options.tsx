@@ -143,7 +143,6 @@ export const GameOptions = () => {
   });
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const gameUrl = `${window.location.host}?roomId=${randomString(7)}`;
-  console.log(watch());
 
   const onSubmit: SubmitHandler<Options> = (data) => {
     console.log(data);

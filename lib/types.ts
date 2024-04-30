@@ -27,6 +27,14 @@ export interface ServerToClientEvents {
   canvasChangeBrushSize: (brushSize: BrushSize) => void;
 }
 
+type CallbackObject =
+  | {
+      status: "success";
+    }
+  | {
+      status: "error";
+      errorMessage: string;
+    };
 export interface ClientToServerEvents {
   // canvas related events
   canvasMouseMove: (e: Point) => void;
@@ -40,7 +48,7 @@ export interface ClientToServerEvents {
   canvasChangeBrushSize: (brushSize: BrushSize) => void;
 
   // room related events
-  createRoom: () => void;
+  createRoom: (roomId: string, playerName: string, callback: ({ status }: CallbackObject) => void) => void;
 }
 
 export interface InterServerEvents {

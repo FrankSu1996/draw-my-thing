@@ -5,7 +5,7 @@ import { Server } from "socket.io";
 import cors from "cors";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize } from "../../lib/types";
 import Redis from "ioredis";
-import { RedisClient } from "./redis";
+import { DEFAULT_EXPIRY, RedisClient, RedisUtils } from "./redis";
 
 dotenv.config();
 
@@ -52,5 +52,14 @@ io.on("connection", (socket) => {
   socket.on("canvasMouseUp", () => {
     socket.broadcast.emit("canvasMouseUp");
   });
-  socket.on("createRoom", () => {});
+  socket.on("createRoom", async (roomId, playerName, callback) => {
+    const roomIds = await RedisUtils.getRoomIds();
+    if (roomIds.includes(roomId)) callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
+    socket.join(roomId);
+    RedisClient.hset(`room:${roomId}`, "leader", playerName);
+    RedisClient.rpush(`room:${roomId}:players`, playerName);
+    RedisClient.rpush(`room:${roomId}:players:messages`, `Player ${playerName} is now the room leader!`);
+    RedisClient.expire(`room:${roomId}`, DEFAULT_EXPIRY);
+    RedisClient.expire(`room:${roomId}:players`, DEFAULT_EXPIRY);
+  });
 });

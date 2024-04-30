@@ -6,6 +6,9 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectPlayerName, setPlayerName } from "@/redux/gameSlice";
+import { uniqueNamesGenerator } from "unique-names-generator";
+import { uniqueNamesConfig } from "@/lib/config";
+import { randomString } from "@/lib/utils/utils";
 
 export function Root() {
   const navigate = useNavigate();
@@ -31,7 +34,12 @@ export function Root() {
                   <Input id="name" type="text" placeholder="" required value={playerName} onChange={(e) => dispatch(setPlayerName(e.target.value))} />
                 </div>
                 <div>
-                  <Carousel className="w-full">
+                  <Carousel
+                    className="w-full"
+                    onClick={(e) => {
+                      console.log(e.target);
+                    }}
+                  >
                     <CarouselContent>
                       {Array.from({ length: 5 }).map((_, index) => (
                         <CarouselItem key={index}>
@@ -49,14 +57,14 @@ export function Root() {
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
+                    <CarouselPrevious onPrevious={() => dispatch(setPlayerName(uniqueNamesGenerator(uniqueNamesConfig)))} />
+                    <CarouselNext onNext={() => dispatch(setPlayerName(uniqueNamesGenerator(uniqueNamesConfig)))} />
                   </Carousel>
                 </div>
                 <Button type="submit" className="w-full h-14 text-xl">
                   Play Online
                 </Button>
-                <Button variant="outline" className="w-full h-12 text-lg" onClick={() => navigate("/create-game")}>
+                <Button variant="outline" className="w-full h-12 text-lg" onClick={() => navigate(`/game?room=${randomString(7)}`)}>
                   Create Private Room
                 </Button>
               </div>

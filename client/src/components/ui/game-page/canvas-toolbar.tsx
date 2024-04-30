@@ -105,8 +105,8 @@ export const CanvasToolbar = ({ onClearCanvas, undo, redo }: ToolbarProps) => {
   const { socket } = useSocketConnection();
 
   return (
-    <div className="relative overflow-auto rounded-lg border bg-background">
-      <div className="flex h-full overflow-hidden p-1 flex-wrap justify-between">
+    <div className="relative overflow-auto rounded-lg bg-background">
+      <div className="flex h-full overflow-hidden flex-wrap justify-between">
         <div>
           <ColorPicker />
         </div>
