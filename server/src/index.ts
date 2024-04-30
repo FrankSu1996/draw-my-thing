@@ -3,7 +3,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
 import cors from "cors";
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize } from "../../lib/types";
+import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize, type Player } from "../../lib/types";
 import { DEFAULT_EXPIRY, RedisClient, RedisUtils } from "./redis";
 import { createServer } from "http";
 import { instrument } from "@socket.io/admin-ui";
@@ -26,6 +26,14 @@ instrument(io, {
   mode: "development",
 });
 
+const SocketRoomMap = new Map<
+  string,
+  {
+    roomId: string;
+    player: Player;
+  }
+>();
+
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
@@ -36,7 +44,14 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("canvasMouseDown", e);
   });
   socket.on("disconnect", (disconnectReason) => {
-    console.log(`User Disconnected: ${socket.id}. Reason: ${disconnectReason}`);
+    const mapObj = SocketRoomMap.get(socket.id);
+    if (mapObj) {
+      const { player, roomId } = mapObj;
+      SocketRoomMap.delete(socket.id);
+      socket.to(roomId).emit("playerLeft", player);
+      console.log(`Socket ${socket.id} disconnecting from roomId: ${roomId}`);
+    }
+    console.log(`Socket disconnected: ${socket.id}. Reason: ${disconnectReason}`);
   });
   socket.on("canvasChangeColor", (color: Color) => {
     socket.broadcast.emit("canvasChangeColor", color);
@@ -59,9 +74,10 @@ io.on("connection", (socket) => {
   socket.on("canvasMouseUp", () => {
     socket.broadcast.emit("canvasMouseUp");
   });
-  socket.on("createRoom", async (roomId, playerName, callback) => {
+  socket.on("createRoom", async (roomId, player, callback) => {
     const rooms = io.sockets.adapter.rooms;
     if (rooms.has(roomId)) return callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
+    SocketRoomMap.set(socket.id, { roomId, player });
     socket.join(roomId);
     callback({ status: "success" });
   });
@@ -69,6 +85,7 @@ io.on("connection", (socket) => {
     const rooms = io.sockets.adapter.rooms;
     if (rooms.has(roomId)) {
       socket.join(roomId);
+      SocketRoomMap.set(socket.id, { roomId, player });
       socket.to(roomId).emit("playerJoined", player);
     }
   });

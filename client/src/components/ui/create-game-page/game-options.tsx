@@ -10,7 +10,7 @@ import { DRAW_TIMES, MAX_HINTS, MAX_PLAYERS, MAX_ROUNDS, MAX_WORD_COUNT } from "
 import { ScrollArea } from "../scroll-area";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../select";
 import { QuestionMarkIcon } from "@radix-ui/react-icons";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectCreatedRoomId, selectPlayers } from "@/redux/gameSlice";
 

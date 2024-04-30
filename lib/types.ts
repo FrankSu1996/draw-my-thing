@@ -34,7 +34,8 @@ export interface ServerToClientEvents {
   canvasChangeBrushSize: (brushSize: BrushSize) => void;
 
   // room related events
-  playerJoined: (player: string) => void;
+  playerJoined: (player: Player) => void;
+  playerLeft: (player: Player) => void;
 }
 
 type CallbackObject =
@@ -58,8 +59,8 @@ export interface ClientToServerEvents {
   canvasChangeBrushSize: (brushSize: BrushSize) => void;
 
   // room related events
-  createRoom: (roomId: string, player: string, callback: ({ status }: CallbackObject) => void) => void;
-  joinRoom: (roomId: string, player: string) => void;
+  createRoom: (roomId: string, player: Player, callback: ({ status }: CallbackObject) => void) => void;
+  joinRoom: (roomId: string, player: Player) => void;
 }
 
 export interface InterServerEvents {

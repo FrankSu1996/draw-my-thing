@@ -5,8 +5,8 @@ import { uniqueNamesConfig, type BrushSize } from "@/lib/config";
 import { Color } from "@/lib/config";
 import { Player } from "../../../lib";
 
-type Message = {
-  playerName: string;
+export type Message = {
+  playerName?: string;
   message: string;
 };
 
@@ -21,6 +21,7 @@ interface GameState {
     isErasing: boolean;
   };
   createdRoomId: string | null;
+  currentPath: string;
 }
 
 // Define the initial state using that type
@@ -34,6 +35,7 @@ const initialState: GameState = {
     isErasing: false,
   },
   createdRoomId: null,
+  currentPath: "/",
 };
 
 export const gameSlice = createSlice({
@@ -43,6 +45,9 @@ export const gameSlice = createSlice({
   reducers: {
     setDrawColor: (state, action: PayloadAction<Color>) => {
       state.Canvas.drawColor = action.payload;
+    },
+    setCurrentPath: (state, action: PayloadAction<string>) => {
+      state.currentPath = action.payload;
     },
     setBrushSize: (state, action: PayloadAction<BrushSize>) => {
       state.Canvas.brushSize = action.payload;
@@ -62,10 +67,29 @@ export const gameSlice = createSlice({
     setCreatedRoomId(state, action: PayloadAction<string>) {
       state.createdRoomId = action.payload;
     },
+    addPlayer(state, action: PayloadAction<Player>) {
+      const playerIds = state.players.map((p) => p.id);
+      if (playerIds.includes(action.payload.id)) return;
+      state.players.push(action.payload);
+    },
+    removePlayer(state, action: PayloadAction<Player>) {
+      state.players = state.players.filter((player) => player.id === action.payload.id);
+    },
   },
 });
 
-export const { setDrawColor, setBrushSize, setIsErasing, addChatMessage, setChatMessage, setCurrentPlayer, setCreatedRoomId } = gameSlice.actions;
+export const {
+  setDrawColor,
+  setBrushSize,
+  setIsErasing,
+  addChatMessage,
+  setChatMessage,
+  setCurrentPlayer,
+  setCreatedRoomId,
+  addPlayer,
+  removePlayer,
+  setCurrentPath,
+} = gameSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectPlayerName = (state: RootState) => state.game.currentPlayer?.name;
@@ -76,5 +100,5 @@ export const selectChatMessages = (state: RootState) => state.game.chatMessages;
 export const selectPlayers = (state: RootState) => state.game.players;
 export const selectCurrentPlayer = (state: RootState) => state.game.currentPlayer;
 export const selectCreatedRoomId = (state: RootState) => state.game.createdRoomId;
-
+export const selectCurrentPath = (state: RootState) => state.game.currentPath;
 export default gameSlice.reducer;

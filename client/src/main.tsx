@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect, useState, type FC, type ReactNode } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { ThemeProvider } from "./components/theme-provider.tsx";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, useLocation } from "react-router-dom";
 import { Root } from "./routes/root.tsx";
-import { Provider } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import { store } from "./redux/store.ts";
 import { Game } from "./routes/game.tsx";
 

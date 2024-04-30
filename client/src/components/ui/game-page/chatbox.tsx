@@ -4,14 +4,17 @@ import { cn } from "@/lib/utils/utils";
 import { SendHorizonal } from "lucide-react";
 import { ScrollArea } from "../scroll-area";
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type FC, type KeyboardEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addChatMessage, selectChatMessages, selectPlayerName } from "@/redux/gameSlice";
+import { addChatMessage, selectChatMessages, selectPlayerName, type Message } from "@/redux/gameSlice";
 import { Separator } from "../separator";
 
-const ChatMessage = ({ message, index }) => {
-  const playerName = useSelector(selectPlayerName);
+type ChatMessageProps = {
+  message: Message;
+  index: number;
+};
 
+const ChatMessage: FC<ChatMessageProps> = ({ message, index }) => {
   return (
     <div>
       <motion.div
@@ -27,8 +30,8 @@ const ChatMessage = ({ message, index }) => {
         }}
         className={cn("p-[3px] last:border-none text-sm break-words", index % 2 !== 0 || "bg-muted")}
       >
-        <b>{`${playerName}: `}</b>
-        {message}
+        {message.playerName && <b>{`${message.playerName}: `}</b>}
+        {message.message}
       </motion.div>
       <Separator />
     </div>
@@ -37,7 +40,7 @@ const ChatMessage = ({ message, index }) => {
 
 export const Chatbox = () => {
   const [message, setMessage] = useState<string>("");
-  const messages = useSelector(selectChatMessages).map((message) => message.message);
+  const messages = useSelector(selectChatMessages);
   const dispatch = useDispatch();
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);

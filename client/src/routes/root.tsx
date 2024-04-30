@@ -3,13 +3,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Form, useNavigate, useSearchParams } from "react-router-dom";
+import { Form, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setChatMessage, setCreatedRoomId, setCurrentPlayer } from "@/redux/gameSlice";
 import { uniqueNamesGenerator } from "unique-names-generator";
 import { uniqueNamesConfig } from "@/lib/config";
 import { randomString } from "@/lib/utils/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import type { Player } from "../../../lib";
@@ -20,19 +20,19 @@ export function Root() {
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState(uniqueNamesGenerator(uniqueNamesConfig));
   const dispatch = useDispatch();
-
   const { socket } = useSocketConnection();
 
   const handleCreatePrivateRoom = () => {
     if (playerName !== "") {
       const roomId = randomString(7);
+      const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName };
       dispatch(setCreatedRoomId(roomId));
       dispatch(setCurrentPlayer({ character: "fat-cat", id: uuid(), name: playerName }));
-      socket.emit("createRoom", roomId, playerName, (response) => {
+      socket.emit("createRoom", roomId, currentPlayer, (response) => {
         if (response.status === "error") {
           console.log(response.errorMessage);
         } else if (response.status === "success") {
-          dispatch(setChatMessage([{ message: `${playerName} is now the lobby leader!`, playerName }]));
+          dispatch(setChatMessage([{ message: `${playerName} is now the lobby leader!` }]));
         }
       });
       navigate("/game");
@@ -44,7 +44,7 @@ export function Root() {
       const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName };
       dispatch(setCurrentPlayer(currentPlayer));
       navigate({ pathname: "/game", search: searchParams.toString() });
-      socket.emit("joinRoom", roomId, JSON.stringify(currentPlayer));
+      socket.emit("joinRoom", roomId, currentPlayer);
     }
   };
 
