@@ -60,11 +60,18 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("canvasMouseUp");
   });
   socket.on("createRoom", async (roomId, playerName, callback) => {
-    console.log(roomId);
     const rooms = io.sockets.adapter.rooms;
     if (rooms.has(roomId)) return callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
     socket.join(roomId);
     callback({ status: "success" });
+  });
+  socket.on("joinRoom", (roomId, player) => {
+    console.log(JSON.parse(player));
+    const rooms = io.sockets.adapter.rooms;
+    if (rooms.has(roomId)) {
+      socket.join(roomId);
+      socket.to(roomId).emit("playerJoined", player);
+    }
   });
 });
 const port = process.env.PORT!;

@@ -212,6 +212,13 @@ export const useReceiveCanvas = () => {
     return () => {
       socket.off("canvasMouseDown");
       socket.off("canvasMouseMove");
+      socket.off("canvasChangeColor");
+      socket.off("canvasChangeDrawMode");
+      socket.off("canvasUndo");
+      socket.off("canvasRedo");
+      socket.off("canvasChangeBrushSize");
+      socket.off("canvasClear");
+      socket.off("canvasMouseUp");
     };
   }, [isConnected, socket, lineWidth]);
 

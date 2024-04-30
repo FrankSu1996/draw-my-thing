@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { QuestionMarkIcon } from "@radix-ui/react-icons";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectPlayers } from "@/redux/gameSlice";
+import { selectCreatedRoomId, selectPlayers } from "@/redux/gameSlice";
 
 type WordMode = "normal" | "hidden" | "combination";
 
@@ -143,6 +143,10 @@ export const GameOptions = () => {
   const configuredNumPlayers = watch("numPlayers");
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const size = useSize(buttonRef);
+  const createdRoomId = useSelector(selectCreatedRoomId);
+  const [searchParams] = useSearchParams();
+  const isLeader = createdRoomId !== null;
+  const shareGameUrl = createdRoomId ? window.location.host + `?room=${createdRoomId}` : window.location.href;
 
   const onSubmit: SubmitHandler<Options> = (data) => {
     console.log(data);
@@ -165,7 +169,7 @@ export const GameOptions = () => {
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }} className="flex-1">
           <Button
             className="w-full bg-blue-600 hover:bg-blue-700 focus:ring focus:ring-blue-300 text-white font-bold py-7 px-6 rounded-lg shadow-lg transition duration-150 ease-in-out flex-1 text-2xl"
-            disabled={numPlayers < configuredNumPlayers}
+            disabled={numPlayers < configuredNumPlayers || !isLeader}
           >
             Start Game!
           </Button>
@@ -191,7 +195,7 @@ export const GameOptions = () => {
               side="top"
               style={{ width: `${size?.width + 65}px` }}
             >
-              <p>{window.location.href}</p>
+              <p>{shareGameUrl}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

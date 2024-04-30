@@ -15,7 +15,14 @@ export enum Color {
 
 export type BrushSize = "small" | "medium" | "large" | "x-large";
 
+export type Player = {
+  name: string;
+  character: TCharacter;
+  id: string;
+};
+
 export interface ServerToClientEvents {
+  // canvas related events
   canvasMouseMove: (point: Point) => void;
   canvasMouseDown: (point: Point) => void;
   canvasMouseUp: () => void;
@@ -25,6 +32,9 @@ export interface ServerToClientEvents {
   canvasRedo: (imageData: string) => void;
   canvasClear: () => void;
   canvasChangeBrushSize: (brushSize: BrushSize) => void;
+
+  // room related events
+  playerJoined: (player: string) => void;
 }
 
 type CallbackObject =
@@ -48,7 +58,8 @@ export interface ClientToServerEvents {
   canvasChangeBrushSize: (brushSize: BrushSize) => void;
 
   // room related events
-  createRoom: (roomId: string, playerName: string, callback: ({ status }: CallbackObject) => void) => void;
+  createRoom: (roomId: string, player: string, callback: ({ status }: CallbackObject) => void) => void;
+  joinRoom: (roomId: string, player: string) => void;
 }
 
 export interface InterServerEvents {

@@ -1,17 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-import type { TCharacter } from "../../../lib";
 import { uniqueNamesConfig, type BrushSize } from "@/lib/config";
 import { Color } from "@/lib/config";
-import { v4 as uuid } from "uuid";
-import { uniqueNamesGenerator } from "unique-names-generator";
+import { Player } from "../../../lib";
 
-type Player = {
-  name: string;
-  character: TCharacter;
-  id: string;
-};
 type Message = {
   playerName: string;
   message: string;
@@ -27,6 +20,7 @@ interface GameState {
     brushSize: BrushSize;
     isErasing: boolean;
   };
+  createdRoomId: string | null;
 }
 
 // Define the initial state using that type
@@ -39,6 +33,7 @@ const initialState: GameState = {
     brushSize: "medium",
     isErasing: false,
   },
+  createdRoomId: null,
 };
 
 export const gameSlice = createSlice({
@@ -64,10 +59,13 @@ export const gameSlice = createSlice({
     setCurrentPlayer(state, action: PayloadAction<Player | null>) {
       state.currentPlayer = action.payload;
     },
+    setCreatedRoomId(state, action: PayloadAction<string>) {
+      state.createdRoomId = action.payload;
+    },
   },
 });
 
-export const { setDrawColor, setBrushSize, setIsErasing, addChatMessage, setChatMessage, setCurrentPlayer } = gameSlice.actions;
+export const { setDrawColor, setBrushSize, setIsErasing, addChatMessage, setChatMessage, setCurrentPlayer, setCreatedRoomId } = gameSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectPlayerName = (state: RootState) => state.game.currentPlayer?.name;
@@ -76,5 +74,7 @@ export const selectBrushSize = (state: RootState) => state.game.Canvas.brushSize
 export const selectIsErasing = (state: RootState) => state.game.Canvas.isErasing;
 export const selectChatMessages = (state: RootState) => state.game.chatMessages;
 export const selectPlayers = (state: RootState) => state.game.players;
+export const selectCurrentPlayer = (state: RootState) => state.game.currentPlayer;
+export const selectCreatedRoomId = (state: RootState) => state.game.createdRoomId;
 
 export default gameSlice.reducer;

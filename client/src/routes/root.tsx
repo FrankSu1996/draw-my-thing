@@ -3,17 +3,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Form, useNavigate } from "react-router-dom";
+import { Form, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setChatMessage, setCurrentPlayer } from "@/redux/gameSlice";
+import { setChatMessage, setCreatedRoomId, setCurrentPlayer } from "@/redux/gameSlice";
 import { uniqueNamesGenerator } from "unique-names-generator";
 import { uniqueNamesConfig } from "@/lib/config";
 import { randomString } from "@/lib/utils/utils";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
+import type { Player } from "../../../lib";
 
 export function Root() {
+  const [searchParams] = useSearchParams();
+  const roomId = searchParams.get("room");
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState(uniqueNamesGenerator(uniqueNamesConfig));
   const dispatch = useDispatch();
@@ -21,16 +24,28 @@ export function Root() {
   const { socket } = useSocketConnection();
 
   const handleCreatePrivateRoom = () => {
-    const roomId = randomString(7);
-    socket.emit("createRoom", roomId, playerName, (response) => {
-      if (response.status === "error") {
-        console.log(response.errorMessage);
-      } else if (response.status === "success") {
-        dispatch(setChatMessage([{ message: `${playerName} is now the lobby leader!`, playerName }]));
-      }
-    });
-    dispatch(setCurrentPlayer({ character: "fat-cat", id: uuid(), name: playerName }));
-    navigate("/game");
+    if (playerName !== "") {
+      const roomId = randomString(7);
+      dispatch(setCreatedRoomId(roomId));
+      dispatch(setCurrentPlayer({ character: "fat-cat", id: uuid(), name: playerName }));
+      socket.emit("createRoom", roomId, playerName, (response) => {
+        if (response.status === "error") {
+          console.log(response.errorMessage);
+        } else if (response.status === "success") {
+          dispatch(setChatMessage([{ message: `${playerName} is now the lobby leader!`, playerName }]));
+        }
+      });
+      navigate("/game");
+    }
+  };
+
+  const handlePlay = () => {
+    if (roomId && playerName !== "") {
+      const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName };
+      dispatch(setCurrentPlayer(currentPlayer));
+      navigate({ pathname: "/game", search: searchParams.toString() });
+      socket.emit("joinRoom", roomId, JSON.stringify(currentPlayer));
+    }
   };
 
   return (
@@ -74,14 +89,12 @@ export function Root() {
                     <CarouselNext />
                   </Carousel>
                 </div>
-                <Button type="submit" className="w-full h-14 text-xl">
-                  Play Online
+                <Button className="w-full h-14 text-xl" onClick={handlePlay}>
+                  Play
                 </Button>
-                <Form method="post">
-                  <Button type="submit" variant="outline" className="w-full h-12 text-lg" onClick={handleCreatePrivateRoom}>
-                    Create Private Room
-                  </Button>
-                </Form>
+                <Button variant="outline" className="w-full h-12 text-lg" onClick={handleCreatePrivateRoom}>
+                  Create Private Room
+                </Button>
               </div>
             </div>
           </CardContent>
