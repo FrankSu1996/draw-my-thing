@@ -4,9 +4,9 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 import cors from "cors";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize, type Player } from "../../lib/types";
-import { DEFAULT_EXPIRY, RedisClient, RedisUtils } from "./redis";
 import { createServer } from "http";
 import { instrument } from "@socket.io/admin-ui";
+import { RedisClient } from "./redis";
 
 dotenv.config();
 
@@ -49,6 +49,7 @@ io.on("connection", (socket) => {
       const { player, roomId } = mapObj;
       SocketRoomMap.delete(socket.id);
       socket.to(roomId).emit("playerLeft", player);
+      RedisClient.srem(`room:${roomId}`, player.id);
       console.log(`Socket ${socket.id} disconnecting from roomId: ${roomId}`);
     }
     console.log(`Socket disconnected: ${socket.id}. Reason: ${disconnectReason}`);
@@ -74,17 +75,20 @@ io.on("connection", (socket) => {
   socket.on("canvasMouseUp", () => {
     socket.broadcast.emit("canvasMouseUp");
   });
-  socket.on("createRoom", async (roomId, player, callback) => {
+  socket.on("createRoom", async (roomId: string, player: Player, callback) => {
     const rooms = io.sockets.adapter.rooms;
     if (rooms.has(roomId)) return callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
     SocketRoomMap.set(socket.id, { roomId, player });
     socket.join(roomId);
+
+    RedisClient.sadd(`room:${roomId}`, player.id);
     callback({ status: "success" });
   });
   socket.on("joinRoom", (roomId, player) => {
     const rooms = io.sockets.adapter.rooms;
     if (rooms.has(roomId)) {
       socket.join(roomId);
+      RedisClient.sadd(`room:${roomId}`, player.id);
       SocketRoomMap.set(socket.id, { roomId, player });
       socket.to(roomId).emit("playerJoined", player);
     }
