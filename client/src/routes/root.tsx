@@ -9,7 +9,7 @@ import { setChatMessage, setCurrentPlayer } from "@/redux/gameSlice";
 import { uniqueNamesGenerator } from "unique-names-generator";
 import { uniqueNamesConfig } from "@/lib/config";
 import { randomString } from "@/lib/utils/utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 
@@ -18,7 +18,20 @@ export function Root() {
   const [playerName, setPlayerName] = useState(uniqueNamesGenerator(uniqueNamesConfig));
   const dispatch = useDispatch();
 
-  const { socket, connect } = useSocketConnection();
+  const { socket } = useSocketConnection();
+
+  const handleCreatePrivateRoom = () => {
+    const roomId = randomString(7);
+    socket.emit("createRoom", roomId, playerName, (response) => {
+      if (response.status === "error") {
+        console.log(response.errorMessage);
+      } else if (response.status === "success") {
+        dispatch(setChatMessage([{ message: `${playerName} is now the lobby leader!`, playerName }]));
+      }
+    });
+    dispatch(setCurrentPlayer({ character: "fat-cat", id: uuid(), name: playerName }));
+    navigate("/game");
+  };
 
   return (
     <div className="w-full place-items-center flex justify-center items-center h-screen">
@@ -65,24 +78,7 @@ export function Root() {
                   Play Online
                 </Button>
                 <Form method="post">
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    className="w-full h-12 text-lg"
-                    onClick={() => {
-                      connect();
-                      const roomId = randomString(7);
-                      socket.emit("createRoom", roomId, playerName, (response) => {
-                        if (response.status === "error") {
-                          console.log(response.errorMessage);
-                        } else {
-                          dispatch(setChatMessage([{ message: `${playerName} is now the lobby leader!`, playerName }]));
-                        }
-                      });
-                      dispatch(setCurrentPlayer({ character: "fat-cat", id: uuid(), name: playerName }));
-                      navigate("/game");
-                    }}
-                  >
+                  <Button type="submit" variant="outline" className="w-full h-12 text-lg" onClick={handleCreatePrivateRoom}>
                     Create Private Room
                   </Button>
                 </Form>

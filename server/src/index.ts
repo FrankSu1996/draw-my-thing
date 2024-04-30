@@ -60,6 +60,7 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("canvasMouseUp");
   });
   socket.on("createRoom", async (roomId, playerName, callback) => {
+    console.log(roomId);
     const rooms = io.sockets.adapter.rooms;
     if (rooms.has(roomId)) return callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
     socket.join(roomId);

@@ -6,14 +6,16 @@ import { GameLayout } from "@/components/ui/layout/game-layout";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import { useEffect, useState } from "react";
 
-export function Game() {
+export function GameWithCanvas() {
   const { connect, disconnect } = useSocketConnection();
   const [isDrawCanvas, setIsDrawCanvas] = useState(true);
 
   useEffect(() => {
     connect();
 
-    return () => disconnect();
+    return () => {
+      disconnect();
+    };
   }, [connect, disconnect]);
 
   return (
