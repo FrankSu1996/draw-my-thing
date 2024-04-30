@@ -10,6 +10,9 @@ import { DRAW_TIMES, MAX_HINTS, MAX_PLAYERS, MAX_ROUNDS, MAX_WORD_COUNT } from "
 import { ScrollArea } from "../scroll-area";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../select";
 import { QuestionMarkIcon } from "@radix-ui/react-icons";
+import { useLocation, useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectPlayers } from "@/redux/gameSlice";
 
 type WordMode = "normal" | "hidden" | "combination";
 
@@ -126,12 +129,7 @@ const HintsOptionsRow = ({ control }) => {
 };
 
 export const GameOptions = () => {
-  const {
-    handleSubmit,
-    control,
-    watch,
-    formState: { errors },
-  } = useForm<Options>({
+  const { handleSubmit, control, watch } = useForm<Options>({
     defaultValues: {
       numPlayers: 6,
       drawTime: 75,
@@ -141,8 +139,10 @@ export const GameOptions = () => {
       hints: 2,
     },
   });
+  const numPlayers = useSelector(selectPlayers).length;
+  const configuredNumPlayers = watch("numPlayers");
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const gameUrl = `${window.location.host}?roomId=${randomString(7)}`;
+  const size = useSize(buttonRef);
 
   const onSubmit: SubmitHandler<Options> = (data) => {
     console.log(data);
@@ -163,7 +163,10 @@ export const GameOptions = () => {
       </div>
       <div className="flex gap-4 p-4 flex-wrap">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }} className="flex-1">
-          <Button className="w-full bg-blue-600 hover:bg-blue-700 focus:ring focus:ring-blue-300 text-white font-bold py-7 px-6 rounded-lg shadow-lg transition duration-150 ease-in-out flex-1 text-2xl">
+          <Button
+            className="w-full bg-blue-600 hover:bg-blue-700 focus:ring focus:ring-blue-300 text-white font-bold py-7 px-6 rounded-lg shadow-lg transition duration-150 ease-in-out flex-1 text-2xl"
+            disabled={numPlayers < configuredNumPlayers}
+          >
             Start Game!
           </Button>
         </motion.div>
@@ -182,8 +185,13 @@ export const GameOptions = () => {
                 </Button>
               </motion.div>
             </TooltipTrigger>
-            <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1 w-full" side="top">
-              <p>Url</p>
+            <TooltipContent
+              align="center"
+              className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1"
+              side="top"
+              style={{ width: `${size?.width + 65}px` }}
+            >
+              <p>{window.location.href}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

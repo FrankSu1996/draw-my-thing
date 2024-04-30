@@ -45,7 +45,7 @@ export const Chatbox = () => {
 
   const handleSendMessage = () => {
     if (message === "") return;
-    dispatch(addChatMessage({ message, playerName }));
+    if (playerName) dispatch(addChatMessage({ message, playerName }));
     setMessage("");
     inputRef.current?.focus();
   };
