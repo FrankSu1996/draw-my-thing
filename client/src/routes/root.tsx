@@ -33,6 +33,10 @@ export function Root() {
     };
   }, [connect, disconnect]);
 
+  useEffect(() => {
+    fetch("http://localhost:3001/room/xiUQG23/players");
+  }, []);
+
   const handleCreatePrivateRoom = () => {
     if (playerName !== "") {
       const roomId = randomString(7);
