@@ -66,7 +66,6 @@ io.on("connection", (socket) => {
     callback({ status: "success" });
   });
   socket.on("joinRoom", (roomId, player) => {
-    console.log(JSON.parse(player));
     const rooms = io.sockets.adapter.rooms;
     if (rooms.has(roomId)) {
       socket.join(roomId);
