@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setChatMessage, setCreatedRoomId, setCurrentPlayer } from "@/redux/gameSlice";
+import { addPlayer, setChatMessage, setCreatedRoomId, setCurrentPlayer } from "@/redux/gameSlice";
 import { uniqueNamesGenerator } from "unique-names-generator";
 import { uniqueNamesConfig } from "@/lib/config";
 import { randomString } from "@/lib/utils/utils";
@@ -18,7 +18,6 @@ import { Game } from "./game";
 export function Root() {
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get("room");
-  const navigate = useNavigate();
   const [playerName, setPlayerName] = useState(uniqueNamesGenerator(uniqueNamesConfig));
   const dispatch = useDispatch();
   const { socket } = useSocketConnection();
@@ -38,6 +37,7 @@ export function Root() {
     if (playerName !== "") {
       const roomId = randomString(7);
       const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName };
+      dispatch(addPlayer(currentPlayer));
       dispatch(setCreatedRoomId(roomId));
       dispatch(setCurrentPlayer({ character: "fat-cat", id: uuid(), name: playerName }));
       socket.emit("createRoom", roomId, currentPlayer, (response) => {
@@ -55,6 +55,7 @@ export function Root() {
     if (roomId && playerName !== "") {
       const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName };
       dispatch(setCurrentPlayer(currentPlayer));
+      dispatch(setChatMessage([{ message: `${playerName} has joined the lobby!` }]));
       socket.emit("joinRoom", roomId, currentPlayer);
       setGameStarted(true);
     }
