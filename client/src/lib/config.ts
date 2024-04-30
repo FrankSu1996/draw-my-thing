@@ -47,7 +47,7 @@ export const MAX_WORD_COUNT = 5;
 export const MAX_HINTS = 5;
 
 export const uniqueNamesConfig: Config = {
-  dictionaries: [adjectives, adjectives, animals],
+  dictionaries: [adjectives, animals],
   separator: " ",
-  length: 3,
+  length: 2,
 };

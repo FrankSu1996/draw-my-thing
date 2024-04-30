@@ -4,19 +4,26 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 import cors from "cors";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize } from "../../lib/types";
-import Redis from "ioredis";
 import { DEFAULT_EXPIRY, RedisClient, RedisUtils } from "./redis";
+import { createServer } from "http";
+import { instrument } from "@socket.io/admin-ui";
 
 dotenv.config();
 
 const app: Express = express();
 app.use(cors());
+const httpServer = createServer(app);
 
-const port = parseInt(process.env.PORT!);
-const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(port, {
+const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://admin.socket.io"],
+    credentials: true,
   },
+});
+
+instrument(io, {
+  auth: false,
+  mode: "development",
 });
 
 io.on("connection", (socket) => {
@@ -28,8 +35,8 @@ io.on("connection", (socket) => {
   socket.on("canvasMouseDown", (e) => {
     socket.broadcast.emit("canvasMouseDown", e);
   });
-  socket.on("disconnect", () => {
-    console.log(`User Disconnected: ${socket.id}`);
+  socket.on("disconnect", (disconnectReason) => {
+    console.log(`User Disconnected: ${socket.id}. Reason: ${disconnectReason}`);
   });
   socket.on("canvasChangeColor", (color: Color) => {
     socket.broadcast.emit("canvasChangeColor", color);
@@ -53,13 +60,11 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("canvasMouseUp");
   });
   socket.on("createRoom", async (roomId, playerName, callback) => {
-    const roomIds = await RedisUtils.getRoomIds();
-    if (roomIds.includes(roomId)) callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
+    const rooms = io.sockets.adapter.rooms;
+    if (rooms.has(roomId)) return callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
     socket.join(roomId);
-    RedisClient.hset(`room:${roomId}`, "leader", playerName);
-    RedisClient.rpush(`room:${roomId}:players`, playerName);
-    RedisClient.rpush(`room:${roomId}:players:messages`, `Player ${playerName} is now the room leader!`);
-    RedisClient.expire(`room:${roomId}`, DEFAULT_EXPIRY);
-    RedisClient.expire(`room:${roomId}:players`, DEFAULT_EXPIRY);
+    callback({ status: "success" });
   });
 });
+const port = process.env.PORT!;
+httpServer.listen(port, () => console.log("Server running on port " + port));

@@ -5,8 +5,8 @@ import { SendHorizonal } from "lucide-react";
 import { ScrollArea } from "../scroll-area";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { useSelector } from "react-redux";
-import { selectPlayerName } from "@/redux/gameSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addChatMessage, selectChatMessages, selectPlayerName } from "@/redux/gameSlice";
 import { Separator } from "../separator";
 
 const ChatMessage = ({ message, index }) => {
@@ -37,15 +37,15 @@ const ChatMessage = ({ message, index }) => {
 
 export const Chatbox = () => {
   const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<string[]>([]);
+  const messages = useSelector(selectChatMessages).map((message) => message.message);
+  const dispatch = useDispatch();
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const playerName = useSelector(selectPlayerName);
 
   const handleSendMessage = () => {
     if (message === "") return;
-    setMessages((prev) => {
-      return [...prev, message];
-    });
+    dispatch(addChatMessage({ message, playerName }));
     setMessage("");
     inputRef.current?.focus();
   };

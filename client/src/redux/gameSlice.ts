@@ -62,19 +62,22 @@ export const gameSlice = createSlice({
     setIsErasing: (state, action: PayloadAction<boolean>) => {
       state.Canvas.isErasing = action.payload;
     },
-    addMessage: (state, action: PayloadAction<Message>) => {
+    addChatMessage: (state, action: PayloadAction<Message>) => {
       state.chatMessages.push(action.payload);
+    },
+    setChatMessage(state, action: PayloadAction<Message[]>) {
+      state.chatMessages = action.payload;
     },
   },
 });
 
-export const { setPlayerName, setDrawColor, setBrushSize, setIsErasing, addMessage } = gameSlice.actions;
+export const { setPlayerName, setDrawColor, setBrushSize, setIsErasing, addChatMessage, setChatMessage } = gameSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectPlayerName = (state: RootState) => state.game.currentPlayer.name;
 export const selectDrawColor = (state: RootState) => state.game.Canvas.drawColor;
 export const selectBrushSize = (state: RootState) => state.game.Canvas.brushSize;
 export const selectIsErasing = (state: RootState) => state.game.Canvas.isErasing;
-export const selectChatMessage = (state: RootState) => state.game.chatMessages;
+export const selectChatMessages = (state: RootState) => state.game.chatMessages;
 
 export default gameSlice.reducer;
