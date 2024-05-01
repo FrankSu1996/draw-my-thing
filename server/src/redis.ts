@@ -43,6 +43,11 @@ export class RedisUtils {
     return count;
   }
 
+  static async getPlayers(roomId: string) {
+    const players = await RedisClient.smembers(`room:${roomId}`);
+    return players;
+  }
+
   static async addPlayerToRoom(roomId: string, player: Player) {
     await RedisClient.sadd(`room:${roomId}`, JSON.stringify(player));
     await RedisClient.expire(`room:${roomId}`, 10000);

@@ -38,8 +38,7 @@ const SocketRoomMap = new Map<
 // REST-api stuff
 app.get("/room/:room_id/players", async (req, res) => {
   const { room_id } = req.params;
-  console.log(room_id);
-  const players = await RedisClient.smembers(`room:${room_id}`);
+  const players = await RedisUtils.getPlayers(room_id);
 });
 
 // websocket stuff
