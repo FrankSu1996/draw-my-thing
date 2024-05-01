@@ -3,7 +3,16 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
 import cors from "cors";
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize, type Player } from "../../lib/types";
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData,
+  type Color,
+  type BrushSize,
+  type Player,
+  type Message,
+} from "../../lib/types";
 import { createServer } from "http";
 import { instrument } from "@socket.io/admin-ui";
 import { RedisUtils } from "./redis";
@@ -43,8 +52,15 @@ app.get("/room/:room_id/players", async (req, res) => {
 
 // websocket stuff
 io.on("connection", (socket) => {
+  const roomExists = (roomId: string) => {
+    const rooms = io.sockets.adapter.rooms;
+    if (rooms.has(roomId)) return true;
+    return false;
+  };
+
   console.log(`User Connected: ${socket.id}`);
 
+  // canvas related events
   socket.on("canvasMouseMove", (e) => {
     socket.broadcast.emit("canvasMouseMove", e);
   });
@@ -90,17 +106,17 @@ io.on("connection", (socket) => {
   socket.on("canvasMouseUp", () => {
     socket.broadcast.emit("canvasMouseUp");
   });
+
+  // room related events
   socket.on("createRoom", async (roomId: string, player: Player, callback) => {
-    const rooms = io.sockets.adapter.rooms;
-    if (rooms.has(roomId)) return callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
+    if (roomExists(roomId)) return callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
     SocketRoomMap.set(socket.id, { roomId, player });
     socket.join(roomId);
     await RedisUtils.addPlayerToRoom(roomId, player);
     callback({ status: "success" });
   });
   socket.on("joinRoom", async (roomId: string, player: Player, callback) => {
-    const rooms = io.sockets.adapter.rooms;
-    if (rooms.has(roomId)) {
+    if (roomExists(roomId)) {
       socket.join(roomId);
       await RedisUtils.addPlayerToRoom(roomId, player);
       SocketRoomMap.set(socket.id, { roomId, player });
@@ -108,6 +124,11 @@ io.on("connection", (socket) => {
       callback({ status: "success" });
     }
     callback({ status: "error", errorMessage: `Room with id: ${roomId} does not exist` });
+  });
+  socket.on("newChatMessage", (roomId: string, message: Message) => {
+    if (roomExists(roomId)) {
+      socket.to(roomId).emit("newChatMessage", message);
+    }
   });
 });
 const port = process.env.PORT!;

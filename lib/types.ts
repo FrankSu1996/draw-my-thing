@@ -21,6 +21,11 @@ export type Player = {
   id: string;
 };
 
+export type Message = {
+  playerName?: string;
+  message: string;
+};
+
 export interface ServerToClientEvents {
   // canvas related events
   canvasMouseMove: (point: Point) => void;
@@ -36,6 +41,7 @@ export interface ServerToClientEvents {
   // room related events
   playerJoined: (player: Player) => void;
   playerLeft: (player: Player) => void;
+  newChatMessage: (message: Message) => void;
 }
 
 type CallbackObject =
@@ -61,7 +67,7 @@ export interface ClientToServerEvents {
   // room related events
   createRoom: (roomId: string, player: Player, callback: ({ status }: CallbackObject) => void) => void;
   joinRoom: (roomId: string, player: Player, callback: ({ status }: CallbackObject) => void) => void;
-  newChatMessage: (roomId: string, player: Player, message: string) => void;
+  newChatMessage: (roomId: string, message: Message) => void;
 }
 
 export interface InterServerEvents {

@@ -6,7 +6,7 @@ import { ScrollArea } from "../scroll-area";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type FC, type KeyboardEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addChatMessage, selectChatMessages, selectPlayerName, type Message } from "@/redux/gameSlice";
+import { addChatMessage, selectChatMessages, selectRoomId, selectPlayerName, type Message } from "@/redux/gameSlice";
 import { Separator } from "../separator";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 
@@ -47,14 +47,18 @@ export const Chatbox = () => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const playerName = useSelector(selectPlayerName);
   const { socket, isConnected } = useSocketConnection();
+  const roomId = useSelector(selectRoomId);
 
   const handleSendMessage = () => {
     if (message === "") return;
 
     // update local redux store with chat message
-    if (playerName) dispatch(addChatMessage({ message, playerName }));
-
-    // emit message event through socket
+    if (playerName) {
+      const newMessage: Message = { message, playerName };
+      dispatch(addChatMessage(newMessage));
+      // emit message event through socket
+      if (isConnected && roomId) socket.emit("newChatMessage", roomId, newMessage);
+    }
     setMessage("");
     inputRef.current?.focus();
   };
@@ -65,6 +69,16 @@ export const Chatbox = () => {
       handleSendMessage();
     }
   };
+
+  useEffect(() => {
+    socket.on("newChatMessage", (message: Message) => {
+      dispatch(addChatMessage(message));
+    });
+
+    return () => {
+      socket.off("newChatMessage");
+    };
+  }, [socket, dispatch]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

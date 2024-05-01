@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { QuestionMarkIcon } from "@radix-ui/react-icons";
 import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addChatMessage, selectCreatedRoomId, selectPlayers } from "@/redux/gameSlice";
+import { addChatMessage, selectRoomId, selectPlayers } from "@/redux/gameSlice";
 
 type WordMode = "normal" | "hidden" | "combination";
 
@@ -146,7 +146,7 @@ export const GameOptions = () => {
   const configuredNumPlayers = watch("numPlayers");
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const size = useSize(buttonRef);
-  const createdRoomId = useSelector(selectCreatedRoomId);
+  const createdRoomId = useSelector(selectRoomId);
   const isLeader = createdRoomId !== null;
   const shareGameUrl = createdRoomId ? window.location.host + `?room=${createdRoomId}` : window.location.href;
 

@@ -3,12 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
 import { uniqueNamesConfig, type BrushSize } from "@/lib/config";
 import { Color } from "@/lib/config";
-import { Player } from "../../../lib";
-
-export type Message = {
-  playerName?: string;
-  message: string;
-};
+import { Player, Message } from "../../../lib";
 
 // Define a type for the slice state
 interface GameState {
@@ -99,6 +94,6 @@ export const selectIsErasing = (state: RootState) => state.game.Canvas.isErasing
 export const selectChatMessages = (state: RootState) => state.game.chatMessages;
 export const selectPlayers = (state: RootState) => state.game.players;
 export const selectCurrentPlayer = (state: RootState) => state.game.currentPlayer;
-export const selectCreatedRoomId = (state: RootState) => state.game.roomId;
+export const selectRoomId = (state: RootState) => state.game.roomId;
 export const selectCurrentPath = (state: RootState) => state.game.currentPath;
 export default gameSlice.reducer;

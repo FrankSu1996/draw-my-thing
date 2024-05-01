@@ -127,14 +127,11 @@ export function Root() {
                       Play Online
                     </Button>
                   </motion.div>
-
-                  {roomId !== null && (
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }} className="flex-1">
-                      <Button variant={"destructive"} className="w-full h-14 text-xl" onClick={handleJoinPrivateRoom}>
-                        Join Private Room
-                      </Button>
-                    </motion.div>
-                  )}
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }} className="flex-1">
+                    <Button variant={"destructive"} className="w-full h-14 text-xl" onClick={handleJoinPrivateRoom} disabled={roomId === null}>
+                      Join Private Room
+                    </Button>
+                  </motion.div>
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }} className="flex-1">
                     <Button variant="secondary" className="w-full h-14 text-lg" onClick={handleCreatePrivateRoom}>
                       Create Private Room
