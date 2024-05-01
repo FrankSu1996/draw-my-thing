@@ -62,7 +62,6 @@ io.on("connection", (socket) => {
 
       // Check if the set is now empty
       const count = await RedisClient.scard(`room:${roomId}`);
-      console.log(count + " players left");
       if (count === 0) {
         // Delete the key if no players are left in the room
         await RedisClient.del(`room:${roomId}`);
