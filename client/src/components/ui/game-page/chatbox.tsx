@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, type FC, type KeyboardEvent } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { addChatMessage, selectChatMessages, selectPlayerName, type Message } from "@/redux/gameSlice";
 import { Separator } from "../separator";
+import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 
 type ChatMessageProps = {
   message: Message;
@@ -45,10 +46,15 @@ export const Chatbox = () => {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const playerName = useSelector(selectPlayerName);
+  const { socket, isConnected } = useSocketConnection();
 
   const handleSendMessage = () => {
     if (message === "") return;
+
+    // update local redux store with chat message
     if (playerName) dispatch(addChatMessage({ message, playerName }));
+
+    // emit message event through socket
     setMessage("");
     inputRef.current?.focus();
   };

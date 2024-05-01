@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { addPlayer, setChatMessage, setCreatedRoomId, setCurrentPlayer } from "@/redux/gameSlice";
+import { addPlayer, setChatMessage, setRoomId, setCurrentPlayer } from "@/redux/gameSlice";
 import { uniqueNamesGenerator } from "unique-names-generator";
 import { uniqueNamesConfig } from "@/lib/config";
 import { randomString } from "@/lib/utils/utils";
@@ -14,9 +14,13 @@ import { v4 as uuid } from "uuid";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import type { Player } from "../../../lib";
 import { Game } from "./game";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
 
 export function Root() {
-  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const roomId = searchParams.get("room");
   const [playerName, setPlayerName] = useState(uniqueNamesGenerator(uniqueNamesConfig));
   const dispatch = useDispatch();
@@ -29,6 +33,7 @@ export function Root() {
     connect();
 
     return () => {
+      setRoomId(null);
       disconnect();
     };
   }, [connect, disconnect]);
@@ -37,27 +42,36 @@ export function Root() {
     if (playerName !== "") {
       const roomId = randomString(7);
       const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName };
-      dispatch(addPlayer(currentPlayer));
-      dispatch(setCreatedRoomId(roomId));
-      dispatch(setCurrentPlayer({ character: "fat-cat", id: uuid(), name: playerName }));
       socket.emit("createRoom", roomId, currentPlayer, (response) => {
         if (response.status === "error") {
           console.log(response.errorMessage);
         } else if (response.status === "success") {
+          dispatch(addPlayer(currentPlayer));
+          dispatch(setRoomId(roomId));
+          dispatch(setCurrentPlayer({ character: "fat-cat", id: uuid(), name: playerName }));
           dispatch(setChatMessage([{ message: `${playerName} is now the lobby leader!` }]));
           setGameStarted(true);
+          setSearchParams({});
         }
       });
     }
   };
 
-  const handlePlay = () => {
+  const handlePlayOnline = () => {};
+
+  const handleJoinPrivateRoom = () => {
     if (roomId && playerName !== "") {
       const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName };
-      dispatch(setCurrentPlayer(currentPlayer));
-      dispatch(setChatMessage([{ message: `${playerName} has joined the lobby!` }]));
-      socket.emit("joinRoom", roomId, currentPlayer);
-      setGameStarted(true);
+      socket.emit("joinRoom", roomId, currentPlayer, (response) => {
+        if (response.status === "success") {
+          dispatch(setRoomId(roomId));
+          setGameStarted(true);
+          dispatch(setCurrentPlayer(currentPlayer));
+          dispatch(setChatMessage([{ message: `${playerName} has joined the lobby!` }]));
+        } else {
+          toast({ variant: "destructive", title: "Uh Oh! Something went wrong.", description: response.errorMessage });
+        }
+      });
     }
   };
 
@@ -105,17 +119,30 @@ export function Root() {
                       <CarouselNext />
                     </Carousel>
                   </div>
-                  <Button className="w-full h-14 text-xl" onClick={handlePlay}>
-                    Play
-                  </Button>
-                  <Button variant="outline" className="w-full h-12 text-lg" onClick={handleCreatePrivateRoom}>
-                    Create Private Room
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }} className="flex-1">
+                    <Button className="w-full h-14 text-xl" onClick={handlePlayOnline}>
+                      Play Online
+                    </Button>
+                  </motion.div>
+
+                  {roomId !== null && (
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }} className="flex-1">
+                      <Button variant={"destructive"} className="w-full h-14 text-xl" onClick={handleJoinPrivateRoom}>
+                        Join Private Room
+                      </Button>
+                    </motion.div>
+                  )}
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }} className="flex-1">
+                    <Button variant="secondary" className="w-full h-14 text-lg" onClick={handleCreatePrivateRoom}>
+                      Create Private Room
+                    </Button>
+                  </motion.div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+        <Toaster />
       </div>
     );
 }

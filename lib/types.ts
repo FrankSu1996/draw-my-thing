@@ -60,7 +60,8 @@ export interface ClientToServerEvents {
 
   // room related events
   createRoom: (roomId: string, player: Player, callback: ({ status }: CallbackObject) => void) => void;
-  joinRoom: (roomId: string, player: Player) => void;
+  joinRoom: (roomId: string, player: Player, callback: ({ status }: CallbackObject) => void) => void;
+  newChatMessage: (roomId: string, player: Player, message: string) => void;
 }
 
 export interface InterServerEvents {

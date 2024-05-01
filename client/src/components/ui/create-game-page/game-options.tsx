@@ -4,15 +4,15 @@ import { motion } from "framer-motion";
 import { cn, randomString } from "@/lib/utils/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../tooltip";
 import { useRef, useState, type FC, type ReactElement } from "react";
-import { AlarmClock, ChevronDown, Dices, Tally5, UserRound, WrapText } from "lucide-react";
+import { AlarmClock, Check, ChevronDown, Dices, Tally5, UserRound, WrapText } from "lucide-react";
 import { useSize } from "@/lib/hooks/useSize";
 import { DRAW_TIMES, MAX_HINTS, MAX_PLAYERS, MAX_ROUNDS, MAX_WORD_COUNT } from "@/lib/config";
 import { ScrollArea } from "../scroll-area";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../select";
 import { QuestionMarkIcon } from "@radix-ui/react-icons";
 import { useSearchParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { selectCreatedRoomId, selectPlayers } from "@/redux/gameSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addChatMessage, selectCreatedRoomId, selectPlayers } from "@/redux/gameSlice";
 
 type WordMode = "normal" | "hidden" | "combination";
 
@@ -129,6 +129,9 @@ const HintsOptionsRow = ({ control }) => {
 };
 
 export const GameOptions = () => {
+  const [inviteButtonHovered, setInviteButtonHovered] = useState(false);
+  const [showCheck, setShowCheck] = useState(false);
+  const dispatch = useDispatch();
   const { handleSubmit, control, watch } = useForm<Options>({
     defaultValues: {
       numPlayers: 6,
@@ -144,12 +147,37 @@ export const GameOptions = () => {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const size = useSize(buttonRef);
   const createdRoomId = useSelector(selectCreatedRoomId);
-  const [searchParams] = useSearchParams();
   const isLeader = createdRoomId !== null;
   const shareGameUrl = createdRoomId ? window.location.host + `?room=${createdRoomId}` : window.location.href;
 
   const onSubmit: SubmitHandler<Options> = (data) => {
     console.log(data);
+    console.log("submitting");
+  };
+
+  const checkVariants = {
+    hidden: {
+      scale: 0,
+      opacity: 0,
+    },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 15,
+      },
+    },
+  };
+
+  const handleInviteClick = () => {
+    navigator.clipboard.writeText(shareGameUrl);
+    dispatch(addChatMessage({ message: "Copied room link to clipboard!" }));
+    setShowCheck(true);
+    setTimeout(() => {
+      setShowCheck(false);
+    }, 2000);
   };
 
   return (
@@ -181,11 +209,22 @@ export const GameOptions = () => {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }}>
                 <Button
                   type="button"
-                  className="w-full bg-green-500 hover:bg-green-600 focus:ring focus:ring-green-300 text-white font-bold py-7 px-6 rounded-lg shadow-lg transition duration-150 ease-in-out flex-1 text-2xl"
+                  className="w-full bg-green-500 hover:bg-green-600 focus:ring relative focus:ring-green-300 text-white font-bold py-7 px-6 rounded-lg shadow-lg transition duration-150 ease-in-out flex-1 text-2xl"
                   variant="secondary"
                   ref={buttonRef}
+                  onClick={handleInviteClick}
+                  onMouseEnter={() => setInviteButtonHovered(true)}
+                  onMouseLeave={() => {
+                    setInviteButtonHovered(false);
+                    setShowCheck(false);
+                  }}
                 >
-                  Invite your Friends
+                  {inviteButtonHovered ? "Copy link to clipboard" : "Invite your Friends"}
+                  {inviteButtonHovered && showCheck && (
+                    <motion.span variants={checkVariants} initial="hidden" animate="visible" className="absolute right-10">
+                      <Check />
+                    </motion.span>
+                  )}
                 </Button>
               </motion.div>
             </TooltipTrigger>

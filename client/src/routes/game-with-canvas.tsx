@@ -3,20 +3,10 @@ import { DrawCanvas } from "@/components/ui/game-page/draw-canvas";
 import { PlayerList } from "@/components/ui/game-page/player-list";
 import { ReceiveCanvas } from "@/components/ui/game-page/receive-canvas";
 import { GameLayout } from "@/components/ui/layout/game-layout";
-import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import { useEffect, useState } from "react";
 
 export function GameWithCanvas() {
-  const { connect, disconnect } = useSocketConnection();
   const [isDrawCanvas, setIsDrawCanvas] = useState(true);
-
-  useEffect(() => {
-    connect();
-
-    return () => {
-      disconnect();
-    };
-  }, [connect, disconnect]);
 
   return (
     <GameLayout>

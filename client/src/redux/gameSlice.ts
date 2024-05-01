@@ -20,7 +20,7 @@ interface GameState {
     brushSize: BrushSize;
     isErasing: boolean;
   };
-  createdRoomId: string | null;
+  roomId: string | null;
   currentPath: string;
 }
 
@@ -34,7 +34,7 @@ const initialState: GameState = {
     brushSize: "medium",
     isErasing: false,
   },
-  createdRoomId: null,
+  roomId: null,
   currentPath: "/",
 };
 
@@ -64,8 +64,8 @@ export const gameSlice = createSlice({
     setCurrentPlayer(state, action: PayloadAction<Player | null>) {
       state.currentPlayer = action.payload;
     },
-    setCreatedRoomId(state, action: PayloadAction<string>) {
-      state.createdRoomId = action.payload;
+    setRoomId(state, action: PayloadAction<string | null>) {
+      state.roomId = action.payload;
     },
     addPlayer(state, action: PayloadAction<Player>) {
       const playerIds = state.players.map((p) => p.id);
@@ -85,7 +85,7 @@ export const {
   addChatMessage,
   setChatMessage,
   setCurrentPlayer,
-  setCreatedRoomId,
+  setRoomId,
   addPlayer,
   removePlayer,
   setCurrentPath,
@@ -99,6 +99,6 @@ export const selectIsErasing = (state: RootState) => state.game.Canvas.isErasing
 export const selectChatMessages = (state: RootState) => state.game.chatMessages;
 export const selectPlayers = (state: RootState) => state.game.players;
 export const selectCurrentPlayer = (state: RootState) => state.game.currentPlayer;
-export const selectCreatedRoomId = (state: RootState) => state.game.createdRoomId;
+export const selectCreatedRoomId = (state: RootState) => state.game.roomId;
 export const selectCurrentPath = (state: RootState) => state.game.currentPath;
 export default gameSlice.reducer;

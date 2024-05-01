@@ -101,7 +101,7 @@ io.on("connection", (socket) => {
     RedisClient.expire(`room:${roomId}`, 10000);
     callback({ status: "success" });
   });
-  socket.on("joinRoom", (roomId, player) => {
+  socket.on("joinRoom", (roomId: string, player: Player, callback) => {
     const rooms = io.sockets.adapter.rooms;
     if (rooms.has(roomId)) {
       socket.join(roomId);
@@ -109,7 +109,9 @@ io.on("connection", (socket) => {
       RedisClient.expire(`room:${roomId}`, 10000);
       SocketRoomMap.set(socket.id, { roomId, player });
       socket.to(roomId).emit("playerJoined", player);
+      callback({ status: "success" });
     }
+    callback({ status: "error", errorMessage: `Room with id: ${roomId} does not exist` });
   });
 });
 const port = process.env.PORT!;
