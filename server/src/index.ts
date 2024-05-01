@@ -6,7 +6,7 @@ import cors from "cors";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, type Color, type BrushSize, type Player } from "../../lib/types";
 import { createServer } from "http";
 import { instrument } from "@socket.io/admin-ui";
-import { RedisClient } from "./redis";
+import { RedisUtils } from "./redis";
 
 dotenv.config();
 const corsOptions = {
@@ -58,13 +58,12 @@ io.on("connection", (socket) => {
       const { player, roomId } = mapObj;
       SocketRoomMap.delete(socket.id);
       socket.to(roomId).emit("playerLeft", player);
-      await RedisClient.srem(`room:${roomId}`, JSON.stringify(player));
-
+      await RedisUtils.removePlayerFromRoom(roomId, player);
       // Check if the set is now empty
-      const count = await RedisClient.scard(`room:${roomId}`);
+      const count = await RedisUtils.getPlayerCount(roomId);
       if (count === 0) {
         // Delete the key if no players are left in the room
-        await RedisClient.del(`room:${roomId}`);
+        await RedisUtils.deleteRoom(roomId);
         console.log(`Room ${roomId} is empty and has been deleted from Redis.`);
       }
       console.log(`Socket ${socket.id} disconnecting from roomId: ${roomId}`);
@@ -97,16 +96,14 @@ io.on("connection", (socket) => {
     if (rooms.has(roomId)) return callback({ status: "error", errorMessage: `Internal Error: RoomId ${roomId} already exists` });
     SocketRoomMap.set(socket.id, { roomId, player });
     socket.join(roomId);
-    RedisClient.sadd(`room:${roomId}`, JSON.stringify(player));
-    RedisClient.expire(`room:${roomId}`, 10000);
+    await RedisUtils.addPlayerToRoom(roomId, player);
     callback({ status: "success" });
   });
-  socket.on("joinRoom", (roomId: string, player: Player, callback) => {
+  socket.on("joinRoom", async (roomId: string, player: Player, callback) => {
     const rooms = io.sockets.adapter.rooms;
     if (rooms.has(roomId)) {
       socket.join(roomId);
-      RedisClient.sadd(`room:${roomId}`, JSON.stringify(player));
-      RedisClient.expire(`room:${roomId}`, 10000);
+      await RedisUtils.addPlayerToRoom(roomId, player);
       SocketRoomMap.set(socket.id, { roomId, player });
       socket.to(roomId).emit("playerJoined", player);
       callback({ status: "success" });

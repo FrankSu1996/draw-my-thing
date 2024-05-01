@@ -1,11 +1,12 @@
 import dotenv from "dotenv";
 import { Redis } from "ioredis";
+import type { Player } from "../../lib";
 dotenv.config();
 
 // right now all redis data clears after 6 hours
 export const DEFAULT_EXPIRY = 21600;
 
-export const RedisClient = new Redis(process.env.REDIS_URL!);
+const RedisClient = new Redis(process.env.REDIS_URL!);
 RedisClient.on("connect", () => {
   console.log("Redis client connected");
 });
@@ -36,5 +37,21 @@ export class RedisUtils {
     } while (cursor !== "0"); // Continue scanning until cursor returns to 0
 
     return roomIds;
+  }
+  static async getPlayerCount(roomId: string) {
+    const count = await RedisClient.scard(`room:${roomId}`);
+    return count;
+  }
+
+  static async addPlayerToRoom(roomId: string, player: Player) {
+    await RedisClient.sadd(`room:${roomId}`, JSON.stringify(player));
+    await RedisClient.expire(`room:${roomId}`, 10000);
+  }
+
+  static async removePlayerFromRoom(roomId: string, player: Player) {
+    await RedisClient.srem(`room:${roomId}`, JSON.stringify(player));
+  }
+  static async deleteRoom(roomId: string) {
+    await RedisClient.del(`room:${roomId}`);
   }
 }
