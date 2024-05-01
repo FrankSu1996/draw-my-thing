@@ -229,9 +229,9 @@ export const GameOptions = () => {
             </TooltipTrigger>
             <TooltipContent
               align="center"
-              className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1"
+              className="rounded-[0.5rem] border text-center bg-accent px-2 py-3 mb-1"
               side="top"
-              style={{ width: `${size?.width + 65}px` }}
+              style={{ width: `${size?.width + 70}px` }}
             >
               <p className="text-lg">{shareGameUrl}</p>
             </TooltipContent>
