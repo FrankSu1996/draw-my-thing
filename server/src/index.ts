@@ -44,10 +44,15 @@ const SocketRoomMap = new Map<
   }
 >();
 
+// Create an Express router
+const apiRouter = express.Router();
+app.use(`/api/${process.env.APIVERSION}`, apiRouter);
+
 // REST-api stuff
-app.get("/room/:room_id/players", async (req, res) => {
+apiRouter.get("/room/:room_id/players", async (req, res) => {
   const { room_id } = req.params;
   const players = await RedisUtils.getPlayers(room_id);
+  res.send(JSON.stringify(players));
 });
 
 // websocket stuff

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { cn, randomString } from "@/lib/utils/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../tooltip";
 import { useRef, useState, type FC, type ReactElement } from "react";
-import { AlarmClock, Check, ChevronDown, Dices, Tally5, UserRound, WrapText } from "lucide-react";
+import { AlarmClock, Check, ChevronDown, ClipboardPen, Dices, Tally5, UserRound, WrapText } from "lucide-react";
 import { useSize } from "@/lib/hooks/useSize";
 import { DRAW_TIMES, MAX_HINTS, MAX_PLAYERS, MAX_ROUNDS, MAX_WORD_COUNT } from "@/lib/config";
 import { ScrollArea } from "../scroll-area";
@@ -175,9 +175,6 @@ export const GameOptions = () => {
     navigator.clipboard.writeText(shareGameUrl);
     dispatch(addChatMessage({ message: "Copied room link to clipboard!" }));
     setShowCheck(true);
-    setTimeout(() => {
-      setShowCheck(false);
-    }, 2000);
   };
 
   return (
@@ -209,7 +206,7 @@ export const GameOptions = () => {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }}>
                 <Button
                   type="button"
-                  className="w-full bg-green-500 hover:bg-green-600 focus:ring relative focus:ring-green-300 text-white font-bold py-7 px-6 rounded-lg shadow-lg transition duration-150 ease-in-out flex-1 text-2xl"
+                  className="w-full flex items-center bg-green-500 hover:bg-green-600 focus:ring relative focus:ring-green-300 text-white font-bold py-7 px-6 rounded-lg shadow-lg transition duration-150 ease-in-out flex-1 text-2xl"
                   variant="secondary"
                   ref={buttonRef}
                   onClick={handleInviteClick}
@@ -220,10 +217,12 @@ export const GameOptions = () => {
                   }}
                 >
                   {inviteButtonHovered ? "Copy link to clipboard" : "Invite your Friends"}
-                  {inviteButtonHovered && showCheck && (
-                    <motion.span variants={checkVariants} initial="hidden" animate="visible" className="absolute right-10">
+                  {showCheck ? (
+                    <motion.span variants={checkVariants} initial="hidden" animate="visible" className="ml-10">
                       <Check />
                     </motion.span>
+                  ) : (
+                    <ClipboardPen className="ml-10" />
                   )}
                 </Button>
               </motion.div>
