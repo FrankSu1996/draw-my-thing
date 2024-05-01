@@ -17,8 +17,10 @@ import { Game } from "./game";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
+import { useTheme } from "@/components/theme-provider";
 
 export function Root() {
+  const { theme } = useTheme();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const roomId = searchParams.get("room");
@@ -79,11 +81,12 @@ export function Root() {
     return <Game />;
   } else
     return (
-      <div className="w-full place-items-center flex justify-center items-center h-screen">
+      <div className="w-full place-items-center flex justify-center items-center h-screen relative">
         <div className="flex items-center justify-center flex-col">
           <div className="flex items-center justify-center gap-10">
-            <img src="light/logo-text.png" alt="" className="max-w-[500px]" />
-            <img src="light/logo.png" alt="" width={150} height={100} className="pb-10" />
+            <h1 style={{ fontFamily: "doodly1", fontSize: "5.5rem" }} className="w-full md-w-1/2">
+              Draw Your Thing
+            </h1>
           </div>
           <Card className="py-4 px-10">
             <CardContent className="">
