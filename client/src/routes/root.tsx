@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import { useTheme } from "@/components/theme-provider";
+import { useGetPlayersInRoomQuery } from "@/redux/restApi";
 
 export function Root() {
   const { theme } = useTheme();
@@ -28,6 +29,9 @@ export function Root() {
   const dispatch = useDispatch();
   const { socket } = useSocketConnection();
   const [gameStarted, setGameStarted] = useState(false);
+
+  const { data } = useGetPlayersInRoomQuery(roomId);
+  console.log(data);
 
   const { connect, disconnect } = useSocketConnection();
 
