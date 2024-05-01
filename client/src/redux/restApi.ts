@@ -21,4 +21,4 @@ export const RestApi = createApi({
 
 // Export hooks for usage in function components, which are
 // auto-generated based on the defined endpoints
-export const { useGetPlayersInRoomQuery } = RestApi;
+export const { useGetPlayersInRoomQuery, useLazyGetPlayersInRoomQuery } = RestApi;

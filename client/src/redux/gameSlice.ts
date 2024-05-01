@@ -70,6 +70,9 @@ export const gameSlice = createSlice({
     removePlayer(state, action: PayloadAction<Player>) {
       state.players = state.players.filter((player) => player.id === action.payload.id);
     },
+    setPlayers(state, action: PayloadAction<Player[]>) {
+      state.players = action.payload;
+    },
   },
 });
 
@@ -84,6 +87,7 @@ export const {
   addPlayer,
   removePlayer,
   setCurrentPath,
+  setPlayers,
 } = gameSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
