@@ -1,7 +1,6 @@
 // Need to use the React-specific entry point to allow generating React hooks
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { Player } from "../../../lib";
-console.log(import.meta.env.MODE);
 
 const baseUrl = import.meta.env.DEV ? `http://localhost:3001/api/v1/` : `${window.location.host}/api/v1/`;
 
