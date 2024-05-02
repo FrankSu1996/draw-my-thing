@@ -8,6 +8,7 @@ import { Player, Message } from "../../../lib";
 // Define a type for the slice state
 interface GameState {
   currentPlayer: Player | null;
+  lobbyLeader: Player | null;
   players: Player[];
   chatMessages: Message[];
   Canvas: {
@@ -22,6 +23,7 @@ interface GameState {
 // Define the initial state using that type
 const initialState: GameState = {
   currentPlayer: null,
+  lobbyLeader: null,
   players: [],
   chatMessages: [],
   Canvas: {
@@ -68,15 +70,19 @@ export const gameSlice = createSlice({
       state.players.push(action.payload);
     },
     removePlayer(state, action: PayloadAction<Player>) {
-      state.players = state.players.filter((player) => player.id === action.payload.id);
+      state.players = state.players.filter((player) => player.id !== action.payload.id);
     },
     setPlayers(state, action: PayloadAction<Player[]>) {
       state.players = action.payload;
+    },
+    setLobbyLeader(state, action: PayloadAction<Player>) {
+      state.lobbyLeader = action.payload;
     },
   },
 });
 
 export const {
+  setLobbyLeader,
   setDrawColor,
   setBrushSize,
   setIsErasing,
@@ -100,4 +106,5 @@ export const selectPlayers = (state: RootState) => state.game.players;
 export const selectCurrentPlayer = (state: RootState) => state.game.currentPlayer;
 export const selectRoomId = (state: RootState) => state.game.roomId;
 export const selectCurrentPath = (state: RootState) => state.game.currentPath;
+export const selectLobbyLeader = (state: RootState) => state.game.lobbyLeader;
 export default gameSlice.reducer;

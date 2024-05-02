@@ -6,9 +6,10 @@ import { ScrollArea } from "../scroll-area";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type FC, type KeyboardEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addChatMessage, selectChatMessages, selectRoomId, selectPlayerName, type Message } from "@/redux/gameSlice";
+import { addChatMessage, selectChatMessages, selectRoomId, selectPlayerName } from "@/redux/gameSlice";
 import { Separator } from "../separator";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
+import type { Message } from "../../../../../lib";
 
 type ChatMessageProps = {
   message: Message;

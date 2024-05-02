@@ -180,6 +180,7 @@ export const GameOptions = () => {
   return (
     <form
       className="relative flex flex-col rounded-xl w-3/5 gap-2 justify-between overflow-auto shadow-xl border-2"
+      style={{ flex: 3 }}
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="flex flex-col gap-4 p-16">

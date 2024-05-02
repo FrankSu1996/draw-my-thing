@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setChatMessage, setRoomId, setCurrentPlayer } from "@/redux/gameSlice";
+import { setChatMessage, setRoomId, setCurrentPlayer, setLobbyLeader } from "@/redux/gameSlice";
 import { uniqueNamesGenerator } from "unique-names-generator";
 import { uniqueNamesConfig } from "@/lib/config";
 import { randomString } from "@/lib/utils/utils";
@@ -41,13 +41,14 @@ export function Root() {
   const handleCreatePrivateRoom = () => {
     if (playerName !== "") {
       const roomId = randomString(7);
-      const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName };
+      const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName, points: 0, rank: 1 };
       socket.emit("createRoom", roomId, currentPlayer, (response) => {
         if (response.status === "error") {
           console.log(response.errorMessage);
         } else if (response.status === "success") {
+          dispatch(setLobbyLeader(currentPlayer));
           dispatch(setRoomId(roomId));
-          dispatch(setCurrentPlayer({ character: "fat-cat", id: uuid(), name: playerName }));
+          dispatch(setCurrentPlayer(currentPlayer));
           dispatch(setChatMessage([{ message: `${playerName} is now the lobby leader!` }]));
           setGameStarted(true);
           setSearchParams({});
@@ -60,7 +61,7 @@ export function Root() {
 
   const handleJoinPrivateRoom = () => {
     if (roomId && playerName !== "") {
-      const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName };
+      const currentPlayer: Player = { character: "fat-cat", id: uuid(), name: playerName, points: 0, rank: 1 };
       socket.emit("joinRoom", roomId, currentPlayer, (response) => {
         if (response.status === "success") {
           dispatch(setRoomId(roomId));

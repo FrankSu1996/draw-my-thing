@@ -19,6 +19,8 @@ export type Player = {
   name: string;
   character: TCharacter;
   id: string;
+  points: number;
+  rank: number;
 };
 
 export type Message = {

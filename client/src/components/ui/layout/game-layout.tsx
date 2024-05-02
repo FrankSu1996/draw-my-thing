@@ -12,7 +12,7 @@ export const GameLayout: FC<LayoutProps> = ({ children }) => {
       <div className="flex flex-col h-full gap-2">
         <Header />
         <GameBar />
-        <main className="flex flex-1 gap-3 overflow-hidden">{children}</main>
+        <main className="flex flex-1 gap-2 overflow-hidden">{children}</main>
       </div>
     </div>
   );
