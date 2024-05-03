@@ -26,19 +26,18 @@ export class RedisUtils {
     do {
       // Use the SCAN command to find keys matching 'room:*'
       const reply = await RedisClient.scan(cursor, "MATCH", "room:*");
-      cursor = reply[0]; // Update cursor to the next position for SCAN continuation
-      const keys = reply[1]; // Retrieve the list of keys from the current scan
+      cursor = reply[0];
+      const keys = reply[1];
 
       // Extract the roomId from each key and add to the roomIds array
       // Filter and extract the roomId from each key
       keys.forEach((key) => {
         if (key.match(/^room:\w+$/)) {
-          // This regex ensures the key has no further colons
-          const roomId = key.split(":")[1]; // Assuming the key format is 'room:{roomId}'
+          const roomId = key.split(":")[1];
           roomIds.push(roomId);
         }
       });
-    } while (cursor !== "0"); // Continue scanning until cursor returns to 0
+    } while (cursor !== "0");
 
     return roomIds;
   }
