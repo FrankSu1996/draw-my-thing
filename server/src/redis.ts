@@ -98,4 +98,9 @@ export class RedisUtils {
     await RedisClient.hset(getRoomKey(roomId), "leader", leader.id);
     await RedisClient.expire(getRoomKey(roomId), DEFAULT_EXPIRY);
   }
+
+  static async getRoomDetails(roomId: string) {
+    const details = await RedisClient.hgetall(getRoomKey(roomId));
+    return details;
+  }
 }

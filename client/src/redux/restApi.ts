@@ -16,9 +16,14 @@ export const RestApi = createApi({
       },
       providesTags: (result, error, roomId: string) => [{ type: "Players", roomId }],
     }),
+    getRoomDetails: builder.query<Record<string, string>, string>({
+      query: (roomId: string) => {
+        return `room/${roomId}/details`;
+      },
+    }),
   }),
 });
 
 // Export hooks for usage in function components, which are
 // auto-generated based on the defined endpoints
-export const { useGetPlayersInRoomQuery, useLazyGetPlayersInRoomQuery } = RestApi;
+export const { useLazyGetPlayersInRoomQuery, useLazyGetRoomDetailsQuery } = RestApi;

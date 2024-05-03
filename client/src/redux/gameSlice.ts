@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-import { uniqueNamesConfig, type BrushSize } from "@/lib/config";
+import { type BrushSize } from "@/lib/config";
 import { Color } from "@/lib/config";
 import { Player, Message } from "../../../lib";
 

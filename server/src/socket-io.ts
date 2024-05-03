@@ -3,7 +3,7 @@ import type { ClientToServerEvents, ServerToClientEvents, InterServerEvents, Soc
 import { CORS } from "./config";
 import { instrument } from "@socket.io/admin-ui";
 import { RedisUtils } from "./redis";
-import { httpServer } from ".";
+import { httpServer } from "./app";
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
   cors: CORS,

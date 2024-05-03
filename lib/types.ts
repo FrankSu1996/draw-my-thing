@@ -28,6 +28,10 @@ export type Message = {
   message: string;
 };
 
+export type RoomDetails = {
+  leader: Player;
+};
+
 export interface ServerToClientEvents {
   // canvas related events
   canvasMouseMove: (point: Point) => void;

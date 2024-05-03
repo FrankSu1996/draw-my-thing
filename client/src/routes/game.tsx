@@ -4,7 +4,7 @@ import { PlayerList } from "@/components/ui/game-page/player-list";
 import { GameLayout } from "@/components/ui/layout/game-layout";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
 import { addChatMessage, addPlayer, removePlayer, selectCurrentPlayer, selectRoomId, setPlayers } from "@/redux/gameSlice";
-import { useLazyGetPlayersInRoomQuery } from "@/redux/restApi";
+import { useLazyGetPlayersInRoomQuery, useLazyGetRoomDetailsQuery } from "@/redux/restApi";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { Player } from "../../../lib";
@@ -14,6 +14,7 @@ export function Game() {
   const dispatch = useDispatch();
   const roomId = useSelector(selectRoomId);
   const [fetchPlayers] = useLazyGetPlayersInRoomQuery();
+  const [fetchRoomDetails] = useLazyGetRoomDetailsQuery();
 
   useEffect(() => {
     socket.on("playerJoined", (player) => {
@@ -31,20 +32,22 @@ export function Game() {
     };
   }, [socket, dispatch]);
 
-  // when game first loads, fetch current players in room. Subsequent player join/leaves
-  // will be handled by websockets
+  // when game first loads, we need to fetch the intial room data (i.e. players, room details)
+  // after joining the room, subsequent updates are done via websockets
   useEffect(() => {
-    const fetchInitialPlayersInRoom = async () => {
+    const fetchInitialRoomData = async () => {
       if (roomId) {
-        const { data } = await fetchPlayers(roomId);
-        if (data) {
-          const players = data as Player[];
-          dispatch(setPlayers(players));
-        }
+        const results = await Promise.allSettled([fetchPlayers(roomId), fetchRoomDetails(roomId)]);
+        console.log(results);
+        // const { data } = await fetchPlayers(roomId);
+        // if (data) {
+        //   const players = data as Player[];
+        //   dispatch(setPlayers(players));
+        // }
       }
     };
-    fetchInitialPlayersInRoom();
-  }, [roomId, fetchPlayers, dispatch]);
+    fetchInitialRoomData();
+  }, [roomId, fetchPlayers, dispatch, fetchRoomDetails]);
 
   return (
     <GameLayout>
