@@ -90,8 +90,10 @@ export class RedisUtils {
   static async removePlayerFromRoom(roomId: string, player: Player) {
     await RedisClient.srem(getRoomPlayersKey(roomId), player.id);
   }
-  static async deleteRoomPlayersSet(roomId: string) {
-    await RedisClient.del(getRoomPlayersKey(roomId));
+  static async cleanup(roomId: string, playerId: string) {
+    RedisClient.del(getRoomPlayersKey(roomId));
+    RedisClient.del(getRoomKey(roomId));
+    RedisClient.del(getPlayerKey(playerId));
   }
 
   static async setRoomLeader(roomId: string, leader: Player) {

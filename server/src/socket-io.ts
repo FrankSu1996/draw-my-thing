@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
       const count = await RedisUtils.getPlayerCount(roomId);
       if (count === 0) {
         // Delete the key if no players are left in the room
-        await RedisUtils.deleteRoomPlayersSet(roomId);
+        await RedisUtils.cleanup(roomId, player.id);
         console.log(`Room ${roomId} is empty and has been deleted from Redis.`);
       }
       console.log(`Socket ${socket.id} disconnecting from roomId: ${roomId}`);

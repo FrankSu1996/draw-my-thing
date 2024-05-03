@@ -15,5 +15,5 @@ apiRouter.get("/room/:room_id/players", async (req, res) => {
 apiRouter.get("/room/:room_id/details", async (req, res) => {
   const { room_id } = req.params;
   const roomDetails = await RedisUtils.getRoomDetails(room_id);
-  console.log(roomDetails);
+  res.json(roomDetails);
 });

@@ -3,7 +3,16 @@ import { Chatbox } from "@/components/ui/game-page/chatbox";
 import { PlayerList } from "@/components/ui/game-page/player-list";
 import { GameLayout } from "@/components/ui/layout/game-layout";
 import { useSocketConnection } from "@/lib/hooks/useSocketConnection";
-import { addChatMessage, addPlayer, removePlayer, selectCurrentPlayer, selectRoomId, setPlayers } from "@/redux/gameSlice";
+import {
+  addChatMessage,
+  addPlayer,
+  removePlayer,
+  selectCurrentPlayer,
+  selectLobbyLeader,
+  selectRoomId,
+  setLobbyLeader,
+  setPlayers,
+} from "@/redux/gameSlice";
 import { useLazyGetPlayersInRoomQuery, useLazyGetRoomDetailsQuery } from "@/redux/restApi";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +24,7 @@ export function Game() {
   const roomId = useSelector(selectRoomId);
   const [fetchPlayers] = useLazyGetPlayersInRoomQuery();
   const [fetchRoomDetails] = useLazyGetRoomDetailsQuery();
+  const leader = useSelector(selectLobbyLeader);
 
   useEffect(() => {
     socket.on("playerJoined", (player) => {
@@ -37,13 +47,24 @@ export function Game() {
   useEffect(() => {
     const fetchInitialRoomData = async () => {
       if (roomId) {
+        let players: Player[] = [];
+        let roomDetails: Record<string, string> = {};
+
         const results = await Promise.allSettled([fetchPlayers(roomId), fetchRoomDetails(roomId)]);
-        console.log(results);
-        // const { data } = await fetchPlayers(roomId);
-        // if (data) {
-        //   const players = data as Player[];
-        //   dispatch(setPlayers(players));
-        // }
+        results.forEach((result) => {
+          if (result.status === "fulfilled") {
+            const value = result.value;
+            if (!value.data) return;
+            if (value.endpointName === "getRoomDetails" && !leader) {
+              roomDetails = value.data as Record<string, string>;
+            } else if (value.endpointName === "getPlayersInRoom") {
+              players = value.data as Player[];
+              dispatch(setPlayers(players));
+            }
+          }
+        });
+        const leader = players.find((player) => player.id === roomDetails.leader);
+        if (leader) dispatch(setLobbyLeader(leader));
       }
     };
     fetchInitialRoomData();
