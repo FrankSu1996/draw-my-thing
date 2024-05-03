@@ -51,8 +51,7 @@ app.use(`/api/${process.env.APIVERSION}`, apiRouter);
 // REST-api stuff
 apiRouter.get("/room/:room_id/players", async (req, res) => {
   const { room_id } = req.params;
-  const playersRaw = await RedisUtils.getPlayers(room_id);
-  const players: Player[] = playersRaw.map((player) => JSON.parse(player));
+  const players = await RedisUtils.getPlayers(room_id);
   res.json(players);
 });
 
@@ -84,7 +83,7 @@ io.on("connection", (socket) => {
       const count = await RedisUtils.getPlayerCount(roomId);
       if (count === 0) {
         // Delete the key if no players are left in the room
-        await RedisUtils.deleteRoom(roomId);
+        await RedisUtils.deleteRoomPlayersSet(roomId);
         console.log(`Room ${roomId} is empty and has been deleted from Redis.`);
       }
       console.log(`Socket ${socket.id} disconnecting from roomId: ${roomId}`);
@@ -119,12 +118,15 @@ io.on("connection", (socket) => {
     SocketRoomMap.set(socket.id, { roomId, player });
     socket.join(roomId);
     await RedisUtils.addPlayerToRoom(roomId, player);
+    await RedisUtils.addPlayer(player);
+    await RedisUtils.setRoomLeader(roomId, player);
     callback({ status: "success" });
   });
   socket.on("joinRoom", async (roomId: string, player: Player, callback) => {
     if (roomExists(roomId)) {
       socket.join(roomId);
       await RedisUtils.addPlayerToRoom(roomId, player);
+      await RedisUtils.addPlayer(player);
       SocketRoomMap.set(socket.id, { roomId, player });
       socket.to(roomId).emit("playerJoined", player);
       callback({ status: "success" });

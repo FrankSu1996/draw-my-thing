@@ -14,6 +14,10 @@ RedisClient.on("error", (err) => {
   console.log("Redis client could not connect", err);
 });
 
+const getRoomPlayersKey = (roomId: string) => `room:${roomId}:players`;
+const getRoomKey = (roomId: string) => `room:${roomId}`;
+const getPlayerKey = (playerId: string) => `player:${playerId}`;
+
 export class RedisUtils {
   static async getRoomIds() {
     const roomIds: string[] = [];
@@ -39,24 +43,60 @@ export class RedisUtils {
     return roomIds;
   }
   static async getPlayerCount(roomId: string) {
-    const count = await RedisClient.scard(`room:${roomId}`);
+    const count = await RedisClient.scard(getRoomPlayersKey(roomId));
     return count;
   }
 
-  static async getPlayers(roomId: string) {
-    const players = await RedisClient.smembers(`room:${roomId}`);
+  // Retrieves all players in a room using pipelining
+  static async getPlayers(roomId: string): Promise<Player[]> {
+    const playerIds = await RedisClient.smembers(getRoomPlayersKey(roomId));
+    const players = [];
+
+    // Retrieve each player's details from Redis
+    for (const playerId of playerIds) {
+      const playerKey = getPlayerKey(playerId);
+      const playerData = await RedisClient.hgetall(playerKey);
+
+      // Construct player objects from the retrieved hash data
+      if (playerData) {
+        players.push({
+          id: playerId,
+          name: playerData.name,
+          character: playerData.character,
+          points: parseInt(playerData.points),
+          rank: parseInt(playerData.rank),
+        } as Player);
+      }
+    }
+
     return players;
   }
 
+  static async addPlayer(player: Player) {
+    const playerKey = getPlayerKey(player.id);
+    await RedisClient.hset(playerKey, {
+      character: player.character,
+      name: player.name,
+      points: player.points.toString(),
+      rank: player.rank.toString(),
+    });
+    RedisClient.expire(playerKey, DEFAULT_EXPIRY);
+  }
+
   static async addPlayerToRoom(roomId: string, player: Player) {
-    await RedisClient.sadd(`room:${roomId}`, JSON.stringify(player));
-    await RedisClient.expire(`room:${roomId}`, 10000);
+    await RedisClient.sadd(getRoomPlayersKey(roomId), player.id);
+    await RedisClient.expire(getRoomPlayersKey(roomId), 10000);
   }
 
   static async removePlayerFromRoom(roomId: string, player: Player) {
-    await RedisClient.srem(`room:${roomId}`, JSON.stringify(player));
+    await RedisClient.srem(getRoomPlayersKey(roomId), player.id);
   }
-  static async deleteRoom(roomId: string) {
-    await RedisClient.del(`room:${roomId}`);
+  static async deleteRoomPlayersSet(roomId: string) {
+    await RedisClient.del(getRoomPlayersKey(roomId));
+  }
+
+  static async setRoomLeader(roomId: string, leader: Player) {
+    await RedisClient.hset(getRoomKey(roomId), "leader", leader.id);
+    await RedisClient.expire(getRoomKey(roomId), DEFAULT_EXPIRY);
   }
 }

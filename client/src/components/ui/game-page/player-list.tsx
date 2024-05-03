@@ -19,7 +19,7 @@ const PlayerCard: FC<PlayerCardProps> = ({ player, isLeader }) => {
       className="border-2 rounded-xl p-[6px] flex justify-between"
     >
       <div className="flex flex-col gap-1">
-        <div>#1</div>
+        <div>{`#${player.rank}`}</div>
         {isLeader && <Crown />}
       </div>
       <div className="flex flex-col items-center justify-center gap-1">
