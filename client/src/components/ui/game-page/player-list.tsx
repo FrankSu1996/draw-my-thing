@@ -36,9 +36,12 @@ export const PlayerList = () => {
   const leader = useSelector(selectLobbyLeader);
   return (
     <div className="flex flex-col flex-1 gap-2">
-      {players.map((player) => (
-        <PlayerCard key={player.id} player={player} isLeader={leader?.id === player.id} />
-      ))}
+      {leader && <PlayerCard key={leader.id} player={leader} isLeader={true} />}
+      {players
+        .filter((p) => p.id !== leader?.id)
+        .map((player) => (
+          <PlayerCard key={player.id} player={player} isLeader={false} />
+        ))}
     </div>
   );
 };

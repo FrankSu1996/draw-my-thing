@@ -24,7 +24,6 @@ export function Game() {
   const roomId = useSelector(selectRoomId);
   const [fetchPlayers] = useLazyGetPlayersInRoomQuery();
   const [fetchRoomDetails] = useLazyGetRoomDetailsQuery();
-  const leader = useSelector(selectLobbyLeader);
 
   useEffect(() => {
     socket.on("playerJoined", (player) => {
@@ -55,10 +54,11 @@ export function Game() {
           if (result.status === "fulfilled") {
             const value = result.value;
             if (!value.data) return;
-            if (value.endpointName === "getRoomDetails" && !leader) {
+            if (value.endpointName === "getRoomDetails") {
               roomDetails = value.data as Record<string, string>;
             } else if (value.endpointName === "getPlayersInRoom") {
               players = value.data as Player[];
+              console.log(players);
               dispatch(setPlayers(players));
             }
           }
