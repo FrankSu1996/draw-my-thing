@@ -106,32 +106,12 @@ export const CanvasToolbar = ({ onClearCanvas, undo, redo }: ToolbarProps) => {
 
   return (
     <div className="relative overflow-auto rounded-lg bg-background">
-      <div className="flex h-full overflow-hidden flex-wrap justify-between">
-        <div>
+      <div className="flex h-full overflow-hidden flex-wrap justify-between items-center">
+        <div className="flex items-center justify-center">
           <ColorPicker />
         </div>
-        <div>
+        <div className="flex items-center justify-center p-1 gap-1">
           <BrushSizePicker />
-          <TooltipProvider>
-            <Tooltip delayDuration={150}>
-              <TooltipTrigger>
-                <motion.div
-                  whileHover={{ scale: 1.1, zIndex: 9999 }}
-                  onClick={() => {
-                    onClearCanvas();
-                    socket.emit("canvasClear");
-                  }}
-                >
-                  <Button variant="destructive" size={"icon"}>
-                    <Trash2 />
-                  </Button>
-                </motion.div>
-              </TooltipTrigger>
-              <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
-                <p>Clear Canvas</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           <TooltipProvider>
             <Tooltip delayDuration={150}>
               <TooltipTrigger>
@@ -175,6 +155,28 @@ export const CanvasToolbar = ({ onClearCanvas, undo, redo }: ToolbarProps) => {
               </TooltipTrigger>
               <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
                 <p>Erase</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <div className="flex items-center justify-center p-1 gap-1">
+          <TooltipProvider>
+            <Tooltip delayDuration={150}>
+              <TooltipTrigger>
+                <motion.div
+                  whileHover={{ scale: 1.1, zIndex: 9999 }}
+                  onClick={() => {
+                    onClearCanvas();
+                    socket.emit("canvasClear");
+                  }}
+                >
+                  <Button variant="destructive" size={"icon"}>
+                    <Trash2 />
+                  </Button>
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent align="center" className="rounded-[0.5rem] border text-center bg-accent p-2 mb-1" side="bottom">
+                <p>Clear Canvas</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

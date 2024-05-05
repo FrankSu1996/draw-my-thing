@@ -17,6 +17,7 @@ import { Game } from "./game";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
+import { GameWithCanvas } from "./game-with-canvas";
 
 export function Root() {
   const { toast } = useToast();
@@ -76,7 +77,9 @@ export function Root() {
   };
 
   if (gameStarted) {
-    return <Game />;
+    const game = <Game />;
+    //const game = <GameWithCanvas />;
+    return game;
   } else
     return (
       <div className="w-full place-items-center flex justify-center items-center h-screen relative">

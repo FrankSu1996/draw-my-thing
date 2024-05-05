@@ -44,13 +44,14 @@ io.on("connection", (socket) => {
       const { player, roomId } = mapObj;
       SocketRoomMap.delete(socket.id);
       socket.to(roomId).emit("playerLeft", player);
-      await RedisUtils.removePlayerFromRoom(roomId, player);
-      // Check if the set is now empty
-      const count = await RedisUtils.getPlayerCount(roomId);
-      if (count === 0) {
-        // Delete the key if no players are left in the room
-        await RedisUtils.cleanup(roomId, player.id);
-        console.log(`Room ${roomId} is empty and has been deleted from Redis.`);
+      RedisUtils.handlePlayerDisconnect(roomId, player);
+
+      // handle leader leaving, we need to promote a random player to leader
+      // and broadcast that to room
+      const currentLeaderId = await RedisUtils.getRoomLeader(roomId);
+      if (currentLeaderId === player.id) {
+        console.log("Current leader has left!!");
+        const players = await RedisUtils.getPlayers(roomId);
       }
       console.log(`Socket ${socket.id} disconnecting from roomId: ${roomId}`);
     }

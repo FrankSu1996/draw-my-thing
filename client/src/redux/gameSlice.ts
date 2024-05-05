@@ -17,7 +17,7 @@ interface GameState {
     isErasing: boolean;
   };
   roomId: string | null;
-  currentPath: string;
+  gameState: "waiting-lobby" | "choose-word" | "guessing";
 }
 
 // Define the initial state using that type
@@ -32,7 +32,7 @@ const initialState: GameState = {
     isErasing: false,
   },
   roomId: null,
-  currentPath: "/",
+  gameState: "waiting-lobby",
 };
 
 export const gameSlice = createSlice({
@@ -42,9 +42,6 @@ export const gameSlice = createSlice({
   reducers: {
     setDrawColor: (state, action: PayloadAction<Color>) => {
       state.Canvas.drawColor = action.payload;
-    },
-    setCurrentPath: (state, action: PayloadAction<string>) => {
-      state.currentPath = action.payload;
     },
     setBrushSize: (state, action: PayloadAction<BrushSize>) => {
       state.Canvas.brushSize = action.payload;
@@ -92,7 +89,6 @@ export const {
   setRoomId,
   addPlayer,
   removePlayer,
-  setCurrentPath,
   setPlayers,
 } = gameSlice.actions;
 
@@ -105,6 +101,5 @@ export const selectChatMessages = (state: RootState) => state.game.chatMessages;
 export const selectPlayers = (state: RootState) => state.game.players;
 export const selectCurrentPlayer = (state: RootState) => state.game.currentPlayer;
 export const selectRoomId = (state: RootState) => state.game.roomId;
-export const selectCurrentPath = (state: RootState) => state.game.currentPath;
 export const selectLobbyLeader = (state: RootState) => state.game.lobbyLeader;
 export default gameSlice.reducer;

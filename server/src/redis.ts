@@ -46,7 +46,6 @@ export class RedisUtils {
     return count;
   }
 
-  // Retrieves all players in a room using pipelining
   static async getPlayers(roomId: string): Promise<Player[]> {
     const playerIds = await RedisClient.smembers(getRoomPlayersKey(roomId));
     const players = [];
@@ -87,18 +86,19 @@ export class RedisUtils {
     await RedisClient.expire(getRoomPlayersKey(roomId), 10000);
   }
 
-  static async removePlayerFromRoom(roomId: string, player: Player) {
-    await RedisClient.srem(getRoomPlayersKey(roomId), player.id);
-  }
-  static async cleanup(roomId: string, playerId: string) {
-    RedisClient.del(getRoomPlayersKey(roomId));
-    RedisClient.del(getRoomKey(roomId));
-    RedisClient.del(getPlayerKey(playerId));
+  static handlePlayerDisconnect(roomId: string, player: Player) {
+    // remove player key and remove player from the room:room_id:players key
+    RedisClient.del(getPlayerKey(player.id));
+    RedisClient.srem(getRoomPlayersKey(roomId), player.id);
   }
 
   static async setRoomLeader(roomId: string, leader: Player) {
     await RedisClient.hset(getRoomKey(roomId), "leader", leader.id);
     await RedisClient.expire(getRoomKey(roomId), DEFAULT_EXPIRY);
+  }
+
+  static async getRoomLeader(roomId: string) {
+    return await RedisClient.hget(getRoomKey(roomId), "leader");
   }
 
   static async getRoomDetails(roomId: string) {
